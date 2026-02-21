@@ -1,0 +1,105 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --background: #f6f7f8;
+  --foreground: #171717;
+
+  /* Brand Colors */
+  --color-primary: #47b4eb;
+  --color-primary-dark: #369acb;
+  --color-secondary-mint: #b2f2bb;
+  --color-secondary-lavender: #e0c3fc;
+
+  /* UI Colors */
+  --color-background-light: #f6f7f8;
+  --color-background-dark: #111c21;
+  --color-soft-bg: #f0f4f8;
+  --color-primary-soft: #e0f2fe;
+
+  /* Glass Effect */
+  --color-card-glass: rgba(255, 255, 255, 0.75);
+}
+
+/* Dark mode via .dark class (toggle) or OS preference */
+.dark,
+[data-theme="dark"] {
+  --background: #111c21;
+  --foreground: #ededed;
+  --color-card-glass: rgba(17, 28, 33, 0.75);
+  --color-soft-bg: #1a2730;
+  --color-primary-soft: #1a3040;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) {
+    --background: #111c21;
+    --foreground: #ededed;
+    --color-card-glass: rgba(17, 28, 33, 0.75);
+    --color-soft-bg: #1a2730;
+    --color-primary-soft: #1a3040;
+  }
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: 'IBM Plex Sans Thai', var(--font-inter), sans-serif;
+  --font-heading: 'IBM Plex Sans Thai', var(--font-inter), sans-serif;
+
+  --color-primary: var(--color-primary);
+  --color-primary-dark: var(--color-primary-dark);
+  --color-secondary-mint: var(--color-secondary-mint);
+  --color-secondary-lavender: var(--color-secondary-lavender);
+  --color-soft-bg: var(--color-soft-bg);
+  --color-primary-soft: var(--color-primary-soft);
+  --color-card-glass: var(--color-card-glass);
+
+  --radius-xl: 1.5rem;
+  --radius-2xl: 2rem;
+  --radius-3xl: 2.5rem;
+
+  --shadow-soft: 0 10px 40px -10px rgba(71, 180, 235, 0.2);
+  --shadow-card: 0 4px 20px -5px rgba(0, 0, 0, 0.05);
+  --shadow-glass: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.font-heading {
+  font-family: var(--font-heading);
+}
+
+@layer utilities {
+  .glass-panel {
+    @apply bg-card-glass backdrop-blur-2xl border border-white/50 dark:border-white/10;
+  }
+
+  .hero-gradient {
+    background: radial-gradient(circle at 50% 0%, #ebf8ff 0%, var(--background) 100%);
+  }
+
+  .dark .hero-gradient {
+    background: radial-gradient(circle at 50% 0%, rgba(71, 180, 235, 0.07) 0%, var(--background) 70%);
+  }
+
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-br from-primary to-indigo-400;
+  }
+
+  .dark .text-gradient {
+    @apply from-primary to-sky-300;
+  }
+}
