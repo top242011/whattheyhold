@@ -1,6 +1,22 @@
 import { FundResponse } from "@/types/fund";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+// Server-side (SSR): use API_URL env var → directly hits Railway
+// Client-side: use empty string → relative URLs go through Vercel rewrites
+function getApiBaseUrl(): string {
+    if (typeof window !== 'undefined') {
+        // Client-side: relative URLs work via Vercel rewrites
+        return process.env.NEXT_PUBLIC_API_URL || '';
+    }
+    // Server-side: need absolute URL
+    const apiUrl = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || '';
+    if (apiUrl && !apiUrl.startsWith('http')) return `https://${apiUrl}`;
+    if (apiUrl) return apiUrl;
+    // Vercel auto-sets VERCEL_URL
+    if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
+    return 'http://localhost:3000';
+}
+
+const API_BASE_URL = getApiBaseUrl();
 
 export type FundResult =
     | { status: 'ok'; data: FundResponse }

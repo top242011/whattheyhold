@@ -9,7 +9,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { convertThaiToEng } from "@/lib/thai-mapper";
 import { sanitizeTicker } from "@/lib/sanitize";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+// Client-side: empty string = relative URL, works via Vercel rewrites
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
 
 interface SearchResult {
     ticker: string;
