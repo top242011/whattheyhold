@@ -40,6 +40,8 @@ const COUNTRY_COORDINATES: Record<string, [number, number]> = {
 interface WorldMapProps {
     weights: CountryWeight[];
     sectors?: SectorWeight[];
+    view?: "weight" | "sector";
+    onViewChange?: (v: "weight" | "sector") => void;
 }
 
 const colors = [
@@ -48,11 +50,13 @@ const colors = [
     "bg-teal-500", "bg-orange-500", "bg-violet-500", "bg-pink-500"
 ];
 
-export function WorldMap({ weights, sectors = [] }: WorldMapProps) {
+export function WorldMap({ weights, sectors = [], view: externalView, onViewChange }: WorldMapProps) {
     const [tooltipContent, setTooltipContent] = useState("");
     const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
     const [position, setPosition] = useState({ coordinates: [0, 0], zoom: 1 });
-    const [view, setView] = useState<"weight" | "sector">("weight");
+    const [internalView, setInternalView] = useState<"weight" | "sector">("weight");
+    const view = externalView ?? internalView;
+    const setView = onViewChange ?? setInternalView;
     const [isDark, setIsDark] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
     const { t } = useLocale();
@@ -207,33 +211,6 @@ export function WorldMap({ weights, sectors = [] }: WorldMapProps) {
                 </div>
             )}
 
-            {/* View Toggles */}
-            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20">
-                <div className="glass-panel p-1.5 rounded-full shadow-lg flex items-center gap-1 bg-white/80 dark:bg-slate-800/80">
-                    <motion.button
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => setView("weight")}
-                        className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${view === "weight"
-                            ? "bg-slate-900 text-white shadow-md"
-                            : "hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300"
-                            }`}
-                        aria-label={t.map.viewByWeight}
-                    >
-                        {t.map.byWeight}
-                    </motion.button>
-                    <motion.button
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => setView("sector")}
-                        className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${view === "sector"
-                            ? "bg-slate-900 text-white shadow-md"
-                            : "hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300"
-                            }`}
-                        aria-label={t.map.viewBySector}
-                    >
-                        {t.map.bySector}
-                    </motion.button>
-                </div>
-            </div>
 
             {/* Floating Tooltip */}
             {tooltipContent && (
@@ -244,6 +221,42 @@ export function WorldMap({ weights, sectors = [] }: WorldMapProps) {
                     {tooltipContent}
                 </div>
             )}
+
+            {/* View Toggles — only on desktop (mobile rendered by parent) */}
+            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 hidden lg:block">
+                <MapViewToggle view={view} onViewChange={setView} />
+            </div>
+        </div>
+    );
+}
+
+/** Standalone toggle component, used by parent on mobile */
+export function MapViewToggle({ view, onViewChange }: { view: "weight" | "sector"; onViewChange: (v: "weight" | "sector") => void }) {
+    const { t } = useLocale();
+    return (
+        <div className="glass-panel p-1.5 rounded-full shadow-lg flex items-center gap-1 bg-white/80 dark:bg-slate-800/80 w-fit mx-auto">
+            <motion.button
+                whileTap={{ scale: 0.95 }}
+                onClick={() => onViewChange("weight")}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${view === "weight"
+                    ? "bg-slate-900 text-white shadow-md"
+                    : "hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300"
+                    }`}
+                aria-label={t.map.viewByWeight}
+            >
+                {t.map.byWeight}
+            </motion.button>
+            <motion.button
+                whileTap={{ scale: 0.95 }}
+                onClick={() => onViewChange("sector")}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${view === "sector"
+                    ? "bg-slate-900 text-white shadow-md"
+                    : "hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300"
+                    }`}
+                aria-label={t.map.viewBySector}
+            >
+                {t.map.bySector}
+            </motion.button>
         </div>
     );
 }

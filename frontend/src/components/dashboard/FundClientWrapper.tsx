@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { FundSkeleton } from "./FundSkeleton";
 import { DashboardNav } from "./DashboardNav";
-import { WorldMap } from "./WorldMap";
+import { WorldMap, MapViewToggle } from "./WorldMap";
 import { FundInfoOverlay } from "./FundInfoOverlay";
 import { HoldingsCard } from "./HoldingsCard";
 import { FundResponse } from "@/types/fund";
@@ -19,6 +19,7 @@ interface FundClientWrapperProps {
 export function FundClientWrapper({ ticker, data, initialIsWatchlisted, feederName }: FundClientWrapperProps) {
     const { t } = useLocale();
     const [imagesLoaded, setImagesLoaded] = useState(false);
+    const [mapView, setMapView] = useState<"weight" | "sector">("weight");
 
     useEffect(() => {
         let mounted = true;
@@ -100,15 +101,22 @@ export function FundClientWrapper({ ticker, data, initialIsWatchlisted, feederNa
                 </div>
 
                 {/* Left: Map */}
-                <div className="relative flex flex-col h-full min-h-[50vh] lg:min-h-0 rounded-[30px] overflow-hidden shadow-glass border border-white/40 dark:border-white/10">
+                <div className="relative flex flex-col min-h-[50vh] lg:min-h-0 lg:h-full rounded-[30px] overflow-hidden shadow-glass border border-white/40 dark:border-white/10">
                     <div className="hidden lg:block">
                         <FundInfoOverlay fund={data.fund} lastUpdated={data.last_updated} initialIsWatchlisted={initialIsWatchlisted} />
                     </div>
-                    <WorldMap weights={data.country_weights} sectors={data.sector_weights} />
+                    <WorldMap weights={data.country_weights} sectors={data.sector_weights} view={mapView} onViewChange={setMapView} />
+                </div>
+
+                {/* Mobile: View Toggle below the map */}
+                <div className="lg:hidden -mt-2">
+                    <MapViewToggle view={mapView} onViewChange={setMapView} />
                 </div>
 
                 {/* Right: Side Card */}
-                <HoldingsCard holdings={data.holdings} />
+                <div className="min-h-[400px] lg:min-h-0">
+                    <HoldingsCard holdings={data.holdings} />
+                </div>
             </main>
         </div>
     );

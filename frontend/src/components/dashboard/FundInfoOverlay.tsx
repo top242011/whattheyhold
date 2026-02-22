@@ -60,7 +60,7 @@ export function FundInfoOverlay({ fund, lastUpdated, initialIsWatchlisted = fals
     return (
         <div className="absolute top-6 left-6 z-20 pointer-events-none">
             <div className="flex flex-col gap-2 pointer-events-auto">
-                <div className="glass-panel p-4 rounded-2xl shadow-lg border border-white/40 dark:border-white/10 backdrop-blur-md bg-white/60 dark:bg-slate-900/60 max-w-[300px]">
+                <div className="glass-panel p-4 rounded-2xl shadow-lg border border-white/40 dark:border-white/10 backdrop-blur-md bg-white/60 dark:bg-slate-900/60 lg:max-w-[300px]">
                     <div className="flex items-start justify-between gap-4">
                         <div className="flex items-start gap-3">
                             <FundLogo ticker={fund.ticker} name={fund.name} className="w-12 h-12 mt-1 shrink-0" />
@@ -113,19 +113,11 @@ export function FundInfoOverlay({ fund, lastUpdated, initialIsWatchlisted = fals
                     </motion.button>
                     <motion.button
                         whileTap={{ scale: 0.9 }}
-                        onClick={handleBookmark}
-                        disabled={isWatchlistLoading}
-                        className={`w-9 h-9 flex items-center justify-center rounded-xl transition-colors cursor-pointer ${isWatchlisted
-                            ? "bg-primary text-white hover:bg-primary-dark shadow-sm shadow-primary/20"
-                            : "bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300"
-                            }`}
+                        onClick={() => toast.info(t.toast.bookmarkComingSoon)}
+                        className="w-9 h-9 flex items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-colors cursor-pointer"
                         aria-label="Bookmark"
                     >
-                        {isWatchlistLoading ? (
-                            <Loader2 size={20} className="animate-spin" />
-                        ) : (
-                            <Bookmark size={20} className={isWatchlisted ? "fill-white" : ""} />
-                        )}
+                        <Bookmark size={20} />
                     </motion.button>
                     <motion.button
                         whileTap={{ scale: 0.9 }}
