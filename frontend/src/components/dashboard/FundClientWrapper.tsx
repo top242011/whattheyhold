@@ -7,6 +7,7 @@ import { WorldMap } from "./WorldMap";
 import { FundInfoOverlay } from "./FundInfoOverlay";
 import { HoldingsCard } from "./HoldingsCard";
 import { FundResponse } from "@/types/fund";
+import { useLocale } from "@/lib/i18n";
 
 interface FundClientWrapperProps {
     ticker: string;
@@ -16,6 +17,7 @@ interface FundClientWrapperProps {
 }
 
 export function FundClientWrapper({ ticker, data, initialIsWatchlisted, feederName }: FundClientWrapperProps) {
+    const { t } = useLocale();
     const [imagesLoaded, setImagesLoaded] = useState(false);
 
     useEffect(() => {
@@ -82,10 +84,10 @@ export function FundClientWrapper({ ticker, data, initialIsWatchlisted, feederNa
                             </div>
                             <div>
                                 <h3 className="text-sm font-semibold text-blue-900 dark:text-blue-100">
-                                    {feederName} invests in this Master Fund
+                                    {t.fund.feederBannerTitle.replace("{feederName}", feederName)}
                                 </h3>
                                 <p className="text-xs text-blue-700/80 dark:text-blue-300/80 mt-0.5">
-                                    You are viewing the underlying holdings of {data.fund.name || ticker}, which is the master fund for {feederName}.
+                                    {t.fund.feederBannerDesc.replace("{masterFundName}", data.fund.name || ticker).replace("{feederName}", feederName)}
                                 </p>
                             </div>
                         </div>

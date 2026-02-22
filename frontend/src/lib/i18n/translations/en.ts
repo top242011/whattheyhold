@@ -62,6 +62,8 @@ export const en = {
     lastUpdated: "Last updated:",
     trade: "Trade",
     na: "N/A",
+    feederBannerTitle: "{feederName} invests in this Master Fund",
+    feederBannerDesc: "You are viewing the underlying holdings of {masterFundName}, which is the master fund for {feederName}.",
   },
   footer: {
     tagline:

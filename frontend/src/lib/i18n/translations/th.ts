@@ -64,6 +64,8 @@ export const th: Translations = {
     lastUpdated: "อัปเดตล่าสุด:",
     trade: "ซื้อขาย",
     na: "ไม่มีข้อมูล",
+    feederBannerTitle: "{feederName} ลงทุนในกองทุนหลักนี้",
+    feederBannerDesc: "คุณกำลังดูสินทรัพย์ที่ถือครองของ {masterFundName} ซึ่งเป็นกองทุนหลัก (Master Fund) ของ {feederName}",
   },
   footer: {
     tagline:
