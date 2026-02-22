@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
 
-const apiUrl = process.env.API_URL || "http://127.0.0.1:8000";
+// Ensure the API URL always has a protocol prefix
+const rawApiUrl = process.env.API_URL || "http://127.0.0.1:8000";
+const apiUrl = rawApiUrl.startsWith("http") ? rawApiUrl : `https://${rawApiUrl}`;
 
 const nextConfig: NextConfig = {
   async rewrites() {
