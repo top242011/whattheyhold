@@ -50,6 +50,7 @@ export const th: Translations = {
     noHoldings: "ไม่มีข้อมูลการถือครอง",
     noHoldingsDesc: "ข้อมูลอาจกำลังโหลดหรือไม่มีสำหรับกองทุนนี้",
     searchPlaceholder: "ค้นหากองทุน (เช่น VOO, SPY)...",
+    searchButton: "ค้นหา",
   },
   map: {
     byWeight: "ตามน้ำหนัก",

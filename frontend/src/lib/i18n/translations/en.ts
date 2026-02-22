@@ -48,6 +48,7 @@ export const en = {
     noHoldings: "No holdings data available",
     noHoldingsDesc: "Data may be loading or unavailable for this fund.",
     searchPlaceholder: "Search for a fund (e.g. VOO, SPY)...",
+    searchButton: "Search",
   },
   map: {
     byWeight: "By Weight",

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Search, Loader2 } from "lucide-react";
+import { Search, Loader2, ArrowRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useLocale } from "@/lib/i18n";
@@ -132,9 +132,18 @@ export function SearchBar({ initialValue = "" }: SearchBarProps) {
                         setIsOpen(true);
                     }}
                     onFocus={() => setIsOpen(true)}
-                    className="w-full pl-11 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-sm focus:ring-2 focus:ring-primary/50 placeholder-slate-400 transition-all shadow-inner"
+                    className="w-full pl-11 pr-12 py-2.5 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-base focus:ring-2 focus:ring-primary/50 placeholder-slate-400 transition-all shadow-inner"
                     placeholder={t.dashboard.searchPlaceholder}
                 />
+                {query.trim() && (
+                    <button
+                        type="submit"
+                        aria-label={t.dashboard.searchButton}
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center text-primary-dark dark:text-primary hover:scale-110 active:scale-95 transition-transform cursor-pointer"
+                    >
+                        <ArrowRight size={20} />
+                    </button>
+                )}
             </form>
 
             <AnimatePresence>
