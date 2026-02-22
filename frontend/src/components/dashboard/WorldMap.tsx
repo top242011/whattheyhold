@@ -2,10 +2,10 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { ComposableMap, Geographies, Geography, ZoomableGroup } from "react-simple-maps";
-import { motion } from "framer-motion";
-import { CountryWeight } from "@/types/fund";
-import { toast } from "sonner";
+import { motion, AnimatePresence } from "framer-motion";
+import { CountryWeight, SectorWeight } from "@/types/fund";
 import { useLocale } from "@/lib/i18n";
+import { SectorTreeMap } from "./SectorTreeMap";
 
 // Public topojson URL
 const GEO_URL = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
@@ -39,9 +39,16 @@ const COUNTRY_COORDINATES: Record<string, [number, number]> = {
 
 interface WorldMapProps {
     weights: CountryWeight[];
+    sectors?: SectorWeight[];
 }
 
-export function WorldMap({ weights }: WorldMapProps) {
+const colors = [
+    "bg-sky-500", "bg-indigo-500", "bg-emerald-500", "bg-amber-500",
+    "bg-rose-500", "bg-purple-500", "bg-cyan-500", "bg-fuchsia-500",
+    "bg-teal-500", "bg-orange-500", "bg-violet-500", "bg-pink-500"
+];
+
+export function WorldMap({ weights, sectors = [] }: WorldMapProps) {
     const [tooltipContent, setTooltipContent] = useState("");
     const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
     const [position, setPosition] = useState({ coordinates: [0, 0], zoom: 1 });
@@ -85,97 +92,120 @@ export function WorldMap({ weights }: WorldMapProps) {
             ref={containerRef}
             className="w-full h-full bg-slate-50/50 dark:bg-slate-900/50 backdrop-blur-sm rounded-[30px] overflow-hidden relative flex items-center justify-center border border-white/20"
         >
-            <ComposableMap
-                projectionConfig={{
-                    rotate: [-10, 0, 0],
-                    scale: 147,
-                }}
-                className="w-full h-full"
-            >
-                <ZoomableGroup
-                    zoom={position.zoom}
-                    center={position.coordinates as [number, number]}
-                    onMoveEnd={(pos) => setPosition(pos)}
-                    maxZoom={4}
-                    minZoom={1}
-                >
-                    <Geographies geography={GEO_URL}>
-                        {({ geographies }) =>
-                            geographies.map((geo) => {
-                                const weight = getWeight(geo.id);
-                                return (
-                                    <Geography
-                                        key={geo.rsmKey}
-                                        geography={geo}
-                                        fill={weight > 0 ? HIGHLIGHT_COLOR : (isDark ? EMPTY_COLOR_DARK : EMPTY_COLOR_LIGHT)}
-                                        stroke={isDark ? STROKE_COLOR_DARK : STROKE_COLOR_LIGHT}
-                                        strokeWidth={0.5}
-                                        style={{
-                                            default: { outline: "none", transition: "all 0.3s" },
-                                            hover: {
-                                                fill: "#47b4eb",
-                                                outline: "none",
-                                                cursor: "pointer",
-                                                filter: "drop-shadow(0 4px 6px rgba(71, 180, 235, 0.3))",
-                                            },
-                                            pressed: { outline: "none" },
-                                        }}
-                                        onMouseEnter={(evt) => {
-                                            const name = geo.properties.name;
-                                            const w = getWeight(geo.id);
-                                            setTooltipContent(`${name}: ${w > 0 ? w + "%" : "0%"}`);
+            <AnimatePresence>
+                <motion.div className="w-full h-full absolute inset-0 transition-opacity" style={{ opacity: view === "weight" ? 1 : 0, pointerEvents: view === "weight" ? "auto" : "none" }}>
+                    <ComposableMap
+                        projectionConfig={{
+                            rotate: [-10, 0, 0],
+                            scale: 147,
+                        }}
+                        className="w-full h-full"
+                    >
+                        <ZoomableGroup
+                            zoom={position.zoom}
+                            center={position.coordinates as [number, number]}
+                            onMoveEnd={(pos) => setPosition(pos)}
+                            maxZoom={4}
+                            minZoom={1}
+                        >
+                            <Geographies geography={GEO_URL}>
+                                {({ geographies }) =>
+                                    geographies.map((geo) => {
+                                        const weight = getWeight(geo.id);
+                                        return (
+                                            <Geography
+                                                key={geo.rsmKey}
+                                                geography={geo}
+                                                fill={weight > 0 ? HIGHLIGHT_COLOR : (isDark ? EMPTY_COLOR_DARK : EMPTY_COLOR_LIGHT)}
+                                                stroke={isDark ? STROKE_COLOR_DARK : STROKE_COLOR_LIGHT}
+                                                strokeWidth={0.5}
+                                                style={{
+                                                    default: { outline: "none", transition: "all 0.3s" },
+                                                    hover: {
+                                                        fill: "#47b4eb",
+                                                        outline: "none",
+                                                        cursor: "pointer",
+                                                        filter: "drop-shadow(0 4px 6px rgba(71, 180, 235, 0.3))",
+                                                    },
+                                                    pressed: { outline: "none" },
+                                                }}
+                                                onMouseEnter={(evt) => {
+                                                    const name = geo.properties.name;
+                                                    const w = getWeight(geo.id);
+                                                    setTooltipContent(`${name}: ${w > 0 ? w + "%" : "0%"}`);
 
-                                            // Calculate relative position within container
-                                            if (containerRef.current) {
-                                                const rect = containerRef.current.getBoundingClientRect();
-                                                setTooltipPos({
-                                                    x: evt.clientX - rect.left,
-                                                    y: evt.clientY - rect.top
-                                                });
-                                            }
-                                        }}
-                                        onMouseMove={(evt) => {
-                                            if (containerRef.current) {
-                                                const rect = containerRef.current.getBoundingClientRect();
-                                                setTooltipPos({
-                                                    x: evt.clientX - rect.left,
-                                                    y: evt.clientY - rect.top
-                                                });
-                                            }
-                                        }}
-                                        onMouseLeave={() => {
-                                            setTooltipContent("");
-                                        }}
-                                    />
-                                );
-                            })
-                        }
-                    </Geographies>
-                </ZoomableGroup>
-            </ComposableMap>
+                                                    // Calculate relative position within container
+                                                    if (containerRef.current) {
+                                                        const rect = containerRef.current.getBoundingClientRect();
+                                                        setTooltipPos({
+                                                            x: evt.clientX - rect.left,
+                                                            y: evt.clientY - rect.top
+                                                        });
+                                                    }
+                                                }}
+                                                onMouseMove={(evt) => {
+                                                    if (containerRef.current) {
+                                                        const rect = containerRef.current.getBoundingClientRect();
+                                                        setTooltipPos({
+                                                            x: evt.clientX - rect.left,
+                                                            y: evt.clientY - rect.top
+                                                        });
+                                                    }
+                                                }}
+                                                onMouseLeave={() => {
+                                                    setTooltipContent("");
+                                                }}
+                                            />
+                                        );
+                                    })
+                                }
+                            </Geographies>
+                        </ZoomableGroup>
+                    </ComposableMap>
+                </motion.div>
+
+                {/* Sector Tree Map View */}
+                {view === "sector" && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="absolute inset-0 bg-slate-50 dark:bg-slate-900 z-10 p-4 lg:p-8 flex flex-col gap-2 rounded-[30px]"
+                    >
+                        <h3 className="text-xl font-black text-slate-800 dark:text-white mb-2 pt-16">
+                            Industry Heat Map
+                        </h3>
+                        <div className="flex-1 w-full h-full pb-4 pr-4">
+                            <SectorTreeMap sectors={sectors} />
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             {/* Map Controls */}
-            <div className="absolute bottom-6 left-6 flex flex-col gap-2">
-                <div className="glass-panel p-1.5 rounded-xl shadow-soft flex flex-col gap-1 bg-white/80 dark:bg-slate-800/80">
-                    <motion.button
-                        whileTap={{ scale: 0.9 }}
-                        onClick={() => setPosition((pos) => ({ ...pos, zoom: Math.min(pos.zoom * 1.2, 4) }))}
-                        className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-colors cursor-pointer"
-                        aria-label={t.map.zoomIn}
-                    >
-                        +
-                    </motion.button>
-                    <div className="h-px w-full bg-slate-200 dark:bg-slate-700"></div>
-                    <motion.button
-                        whileTap={{ scale: 0.9 }}
-                        onClick={() => setPosition((pos) => ({ ...pos, zoom: Math.max(pos.zoom / 1.2, 1) }))}
-                        className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-colors cursor-pointer"
-                        aria-label={t.map.zoomOut}
-                    >
-                        -
-                    </motion.button>
+            {view === "weight" && (
+                <div className="absolute bottom-6 left-6 flex flex-col gap-2 z-20">
+                    <div className="glass-panel p-1.5 rounded-xl shadow-soft flex flex-col gap-1 bg-white/80 dark:bg-slate-800/80">
+                        <motion.button
+                            whileTap={{ scale: 0.9 }}
+                            onClick={() => setPosition((pos) => ({ ...pos, zoom: Math.min(pos.zoom * 1.2, 4) }))}
+                            className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-colors cursor-pointer"
+                            aria-label={t.map.zoomIn}
+                        >
+                            +
+                        </motion.button>
+                        <div className="h-px w-full bg-slate-200 dark:bg-slate-700"></div>
+                        <motion.button
+                            whileTap={{ scale: 0.9 }}
+                            onClick={() => setPosition((pos) => ({ ...pos, zoom: Math.max(pos.zoom / 1.2, 1) }))}
+                            className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-colors cursor-pointer"
+                            aria-label={t.map.zoomOut}
+                        >
+                            -
+                        </motion.button>
+                    </div>
                 </div>
-            </div>
+            )}
 
             {/* View Toggles */}
             <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20">
@@ -193,10 +223,7 @@ export function WorldMap({ weights }: WorldMapProps) {
                     </motion.button>
                     <motion.button
                         whileTap={{ scale: 0.95 }}
-                        onClick={() => {
-                            setView("sector");
-                            toast.info(t.toast.sectorViewComingSoon);
-                        }}
+                        onClick={() => setView("sector")}
                         className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${view === "sector"
                             ? "bg-slate-900 text-white shadow-md"
                             : "hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300"

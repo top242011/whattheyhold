@@ -14,6 +14,11 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
 interface SearchResult {
     ticker: string;
     name: string;
+    source?: string;
+    proj_id?: string;
+    is_feeder_fund?: boolean;
+    master_fund?: string;
+    master_ticker?: string;
 }
 
 interface SearchBarProps {
@@ -86,13 +91,30 @@ export function SearchBar({ initialValue = "" }: SearchBarProps) {
             return;
         }
         setIsOpen(false);
-        router.push(`/fund/${query.trim().toUpperCase()}`);
+        // Convert Thai characters on submit (for ticker lookup)
+        const ticker = sanitizeTicker(convertThaiToEng(query.trim()));
+        // If we hit Enter instead of clicking an auto-complete result, we don't have the source/feeder info easily available here.
+        // It will just be a standard ticker lookup, which is fine for direct searches.
+        router.push(`/fund/${ticker}`);
     };
 
-    const handleSelect = (ticker: string) => {
-        setQuery(ticker);
+    const handleSelect = (result: SearchResult) => {
         setIsOpen(false);
-        router.push(`/fund/${ticker}`);
+        if (result.source === "sec") {
+            // Thai fund: navigate to master fund ticker if available, else navigate to its own abbreviation
+            if (result.master_ticker) {
+                setQuery(result.master_ticker);
+                router.push(`/fund/${result.master_ticker}?feeder=${encodeURIComponent(result.ticker)}`);
+            } else {
+                // No master ticker mapped — navigate to this specific Thai fund
+                const ticker = result.ticker.toUpperCase();
+                setQuery(ticker);
+                router.push(`/fund/${ticker}?source=sec`);
+            }
+        } else {
+            setQuery(result.ticker);
+            router.push(`/fund/${result.ticker}`);
+        }
     };
 
     return (
@@ -105,12 +127,11 @@ export function SearchBar({ initialValue = "" }: SearchBarProps) {
                     type="text"
                     value={query}
                     onChange={(e) => {
-                        const englishQuery = sanitizeTicker(convertThaiToEng(e.target.value));
-                        setQuery(englishQuery);
+                        setQuery(e.target.value);
                         setIsOpen(true);
                     }}
                     onFocus={() => setIsOpen(true)}
-                    className="w-full pl-11 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-sm focus:ring-2 focus:ring-primary/50 placeholder-slate-400 transition-all shadow-inner uppercase"
+                    className="w-full pl-11 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-sm focus:ring-2 focus:ring-primary/50 placeholder-slate-400 transition-all shadow-inner"
                     placeholder={t.dashboard.searchPlaceholder}
                 />
             </form>
@@ -126,19 +147,36 @@ export function SearchBar({ initialValue = "" }: SearchBarProps) {
                     >
                         {results.length > 0 ? (
                             <ul className="py-2">
-                                {results.map((result) => (
-                                    <li key={result.ticker}>
+                                {results.map((result, idx) => (
+                                    <li key={`${result.ticker}-${result.source || 'yf'}-${idx}`}>
                                         <button
                                             type="button"
-                                            onClick={() => handleSelect(result.ticker)}
+                                            onClick={() => handleSelect(result)}
                                             className="w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 flex flex-col transition-colors cursor-pointer group"
                                         >
-                                            <span className="font-bold text-slate-900 dark:text-white group-hover:text-primary-dark dark:text-primary transition-colors">
-                                                {result.ticker}
-                                            </span>
+                                            <div className="flex items-center gap-2">
+                                                <span className="font-bold text-slate-900 dark:text-white group-hover:text-primary-dark dark:group-hover:text-primary transition-colors">
+                                                    {result.ticker}
+                                                </span>
+                                                {result.source === "sec" && (
+                                                    <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400">
+                                                        🇹🇭 TH
+                                                    </span>
+                                                )}
+                                                {result.is_feeder_fund && result.master_ticker && (
+                                                    <span className="text-[10px] text-slate-400">
+                                                        → {result.master_ticker}
+                                                    </span>
+                                                )}
+                                            </div>
                                             <span className="text-xs text-slate-500 line-clamp-1">
                                                 {result.name}
                                             </span>
+                                            {result.master_fund && (
+                                                <span className="text-[10px] text-slate-400 mt-0.5 line-clamp-1">
+                                                    Master: {result.master_fund}
+                                                </span>
+                                            )}
                                         </button>
                                     </li>
                                 ))}
@@ -165,3 +203,4 @@ export function SearchBar({ initialValue = "" }: SearchBarProps) {
         </div>
     );
 }
+

@@ -76,12 +76,15 @@ export default function ComparePage() {
         const top5 = data.sector_weights?.slice(0, 5) || [];
         return (
             <div className="space-y-2 text-sm">
-                {top5.map(s => (
-                    <div key={s.sector} className="flex justify-between items-center py-1 border-b border-slate-100 dark:border-slate-800/50 last:border-0">
-                        <span className="text-slate-500 truncate flex-1">{s.sector}</span>
-                        <span className="font-bold text-slate-900 dark:text-white w-12 text-right">{s.weight_pct.toFixed(1)}%</span>
-                    </div>
-                ))}
+                {top5.map(s => {
+                    const translatedSector = (t.industries as any)[s.sector] || s.sector;
+                    return (
+                        <div key={s.sector} className="flex justify-between items-center py-1 border-b border-slate-100 dark:border-slate-800/50 last:border-0">
+                            <span className="text-slate-500 truncate flex-1">{translatedSector}</span>
+                            <span className="font-bold text-slate-900 dark:text-white w-12 text-right">{s.weight_pct.toFixed(1)}%</span>
+                        </div>
+                    );
+                })}
                 {top5.length === 0 && <span className="text-slate-400">{t.compare.noSectorData}</span>}
             </div>
         );
@@ -91,12 +94,15 @@ export default function ComparePage() {
         const top5 = data.country_weights?.slice(0, 5) || [];
         return (
             <div className="space-y-2 text-sm">
-                {top5.map(c => (
-                    <div key={c.country_code} className="flex justify-between items-center py-1 border-b border-slate-100 dark:border-slate-800/50 last:border-0">
-                        <span className="text-slate-500 font-medium">{c.country_code}</span>
-                        <span className="font-bold text-slate-900 dark:text-white">{c.weight_pct.toFixed(1)}%</span>
-                    </div>
-                ))}
+                {top5.map(c => {
+                    const translatedRegion = (t.regions as any)[c.country_code] || c.country_code;
+                    return (
+                        <div key={c.country_code} className="flex justify-between items-center py-1 border-b border-slate-100 dark:border-slate-800/50 last:border-0">
+                            <span className="text-slate-500 font-medium">{translatedRegion}</span>
+                            <span className="font-bold text-slate-900 dark:text-white">{c.weight_pct.toFixed(1)}%</span>
+                        </div>
+                    );
+                })}
                 {top5.length === 0 && <span className="text-slate-400">{t.compare.noGeographicData}</span>}
             </div>
         );

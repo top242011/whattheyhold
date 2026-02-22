@@ -79,6 +79,7 @@ export const en = {
     copyright: "\u00A9 2026 WhatTheyHold Inc. All rights reserved.",
     madeWith: "Made with",
     forInvestors: "for investors",
+    disclaimer: "WhatTheyHold is an information discovery platform, not financial advice. Data may contain errors. Please study and verify carefully before making investment decisions.",
   },
   notFound: {
     title: "Page Not Found",
@@ -167,6 +168,44 @@ export const en = {
     title: "Investment Tools",
     description: "Easily access the investment tools you need.",
   },
+  industries: {
+    technology: "Technology",
+    consumer_cyclical: "Consumer Cyclical",
+    consumer_defensive: "Consumer Defensive",
+    financial_services: "Financial Services",
+    healthcare: "Healthcare",
+    communication_services: "Communication Services",
+    industrials: "Industrials",
+    energy: "Energy",
+    basic_materials: "Basic Materials",
+    realestate: "Real Estate",
+    utilities: "Utilities"
+  },
+  regions: {
+    "840": "North America",
+    "804": "North America",
+    "418": "Latin America",
+    "826": "United Kingdom",
+    "814": "Europe (Developed)",
+    "815": "Europe (Emerging)",
+    "816": "Middle East / Africa",
+    "821": "Japan",
+    "823": "Australasia",
+    "811": "Asia (Developed)",
+    "812": "Asia (Emerging)"
+  },
+  login: {
+    backToHome: "Back to home",
+    welcome: "Welcome to WhatTheyHold",
+    subtitle: "Sign in to save preferred funds and personal layouts",
+    email: "Email address",
+    emailPlaceholder: "your@email.com",
+    emailValidation: "Please enter a valid email address",
+    password: "Password",
+    passwordValidation: "Password must be at least 6 characters",
+    signIn: "Sign in",
+    signUp: "Sign up",
+  }
 } as const;
 
 // Recursive type that widens literal strings to `string`

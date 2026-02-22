@@ -8,7 +8,7 @@ import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { WorldMap } from "@/components/dashboard/WorldMap";
 import { HoldingsCard } from "@/components/dashboard/HoldingsCard";
-import { CountryWeight, Holding } from "@/types/fund";
+import { CountryWeight, Holding, SectorWeight } from "@/types/fund";
 import { convertThaiToEng } from "@/lib/thai-mapper";
 import { InfoTooltip } from "@/components/InfoTooltip";
 import { useLocale } from "@/lib/i18n";
@@ -29,6 +29,7 @@ export default function PortfolioPage() {
 
     // Aggregated Results
     const [aggCountries, setAggCountries] = useState<CountryWeight[]>([]);
+    const [aggSectors, setAggSectors] = useState<SectorWeight[]>([]);
     const [aggHoldings, setAggHoldings] = useState<Holding[]>([]);
     const [hasAnalyzed, setHasAnalyzed] = useState(false);
 
@@ -70,6 +71,7 @@ export default function PortfolioPage() {
         setHasAnalyzed(false);
 
         const countryMap = new Map<string, number>();
+        const sectorMap = new Map<string, number>();
         const holdingMap = new Map<string, { name: string, pct: number }>();
 
         try {
@@ -83,6 +85,12 @@ export default function PortfolioPage() {
                     res.data.country_weights?.forEach(c => {
                         const current = countryMap.get(c.country_code) || 0;
                         countryMap.set(c.country_code, current + (c.weight_pct * normalizedWeight));
+                    });
+
+                    // Aggregate Sectors
+                    res.data.sector_weights?.forEach(s => {
+                        const current = sectorMap.get(s.sector) || 0;
+                        sectorMap.set(s.sector, current + (s.weight_pct * normalizedWeight));
                     });
 
                     // Aggregate Holdings
@@ -101,11 +109,16 @@ export default function PortfolioPage() {
                 country_code, weight_pct
             })).sort((a, b) => b.weight_pct - a.weight_pct);
 
+            const finalSectors = Array.from(sectorMap.entries()).map(([sector, weight_pct]) => ({
+                sector, weight_pct
+            })).sort((a, b) => b.weight_pct - a.weight_pct);
+
             const finalHoldings = Array.from(holdingMap.entries()).map(([ticker, data]) => ({
                 ticker, name: data.name, pct: data.pct
             })).sort((a, b) => b.pct - a.pct).slice(0, 50); // Top 50
 
             setAggCountries(finalCountries);
+            setAggSectors(finalSectors);
             setAggHoldings(finalHoldings);
             setHasAnalyzed(true);
             toast.success("Portfolio analysis complete!");
@@ -238,7 +251,7 @@ export default function PortfolioPage() {
                                         <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">{aggCountries.length} {t.portfolio.countries}</p>
                                     </div>
                                 </div>
-                                <WorldMap weights={aggCountries} />
+                                <WorldMap weights={aggCountries} sectors={aggSectors} />
                             </div>
 
                             {/* Bottom: Holdings */}

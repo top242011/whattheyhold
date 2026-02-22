@@ -1,12 +1,18 @@
+"use client";
+
 import { login, signup } from "./actions";
 import { PieChart, ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { useLocale } from "@/lib/i18n";
+import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 
-export default function LoginPage({
-    searchParams,
-}: {
-    searchParams: { message: string, error: string }
-}) {
+function LoginForm() {
+    const { t } = useLocale();
+    const searchParams = useSearchParams();
+    const error = searchParams.get("error");
+    const message = searchParams.get("message");
+
     return (
         <div className="min-h-screen bg-background-light dark:bg-background-dark flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden">
             {/* Decorative background */}
@@ -16,7 +22,7 @@ export default function LoginPage({
             <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
                 <Link href="/" className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors mb-8">
                     <ArrowLeft size={16} />
-                    Back to home
+                    {t.login.backToHome}
                 </Link>
 
                 <div className="flex justify-center">
@@ -25,10 +31,10 @@ export default function LoginPage({
                     </div>
                 </div>
                 <h2 className="mt-6 text-center text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-                    Welcome to WhatTheyHold
+                    {t.login.welcome}
                 </h2>
                 <p className="mt-2 text-center text-sm text-slate-600 dark:text-slate-400">
-                    Sign in to save preferred funds and personal layouts
+                    {t.login.subtitle}
                 </p>
             </div>
 
@@ -37,7 +43,7 @@ export default function LoginPage({
                     <form className="space-y-6">
                         <div>
                             <label htmlFor="email" className="block text-sm font-medium text-slate-700 dark:text-slate-300">
-                                Email address
+                                {t.login.email}
                             </label>
                             <div className="mt-1">
                                 <input
@@ -48,7 +54,8 @@ export default function LoginPage({
                                     required
                                     maxLength={254}
                                     pattern="[^\s@]+@[^\s@]+\.[^\s@]+"
-                                    title="Please enter a valid email address"
+                                    title={t.login.emailValidation}
+                                    placeholder={t.login.emailPlaceholder}
                                     className="appearance-none block w-full px-4 py-3 border border-slate-300 dark:border-slate-700 rounded-xl shadow-sm placeholder-slate-400 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white transition-colors"
                                 />
                             </div>
@@ -56,7 +63,7 @@ export default function LoginPage({
 
                         <div>
                             <label htmlFor="password" className="block text-sm font-medium text-slate-700 dark:text-slate-300">
-                                Password
+                                {t.login.password}
                             </label>
                             <div className="mt-1">
                                 <input
@@ -67,21 +74,21 @@ export default function LoginPage({
                                     required
                                     minLength={6}
                                     maxLength={128}
-                                    title="Password must be at least 6 characters"
+                                    title={t.login.passwordValidation}
                                     className="appearance-none block w-full px-4 py-3 border border-slate-300 dark:border-slate-700 rounded-xl shadow-sm placeholder-slate-400 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white transition-colors"
                                 />
                             </div>
                         </div>
 
-                        {searchParams?.error && (
+                        {error && (
                             <p className="text-sm text-red-500 font-medium bg-red-50 dark:bg-red-500/10 p-3 rounded-lg text-center">
-                                {searchParams.error}
+                                {error}
                             </p>
                         )}
 
-                        {searchParams?.message && (
+                        {message && (
                             <p className="text-sm text-emerald-500 font-medium bg-emerald-50 dark:bg-emerald-500/10 p-3 rounded-lg text-center">
-                                {searchParams.message}
+                                {message}
                             </p>
                         )}
 
@@ -90,18 +97,26 @@ export default function LoginPage({
                                 formAction={login}
                                 className="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-bold text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors cursor-pointer"
                             >
-                                Sign in
+                                {t.login.signIn}
                             </button>
                             <button
                                 formAction={signup}
                                 className="w-full flex justify-center py-3 px-4 border-2 border-slate-200 dark:border-slate-700 rounded-xl shadow-sm text-sm font-bold text-slate-700 dark:text-slate-300 bg-transparent hover:bg-slate-50 dark:hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors cursor-pointer"
                             >
-                                Sign up
+                                {t.login.signUp}
                             </button>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function LoginPage() {
+    return (
+        <Suspense>
+            <LoginForm />
+        </Suspense>
     );
 }

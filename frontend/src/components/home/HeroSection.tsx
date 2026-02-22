@@ -9,10 +9,12 @@ export function HeroSection() {
     const { t } = useLocale();
 
     return (
-        <div className="relative w-full hero-gradient pt-20 pb-20 lg:pt-32 lg:pb-32 overflow-hidden">
-            {/* Decorative blobs */}
-            <div className="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 bg-secondary-lavender/30 dark:bg-primary/10 rounded-full blur-3xl opacity-50 dark:opacity-20 pointer-events-none"></div>
-            <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 bg-secondary-mint/30 dark:bg-primary/10 rounded-full blur-3xl opacity-50 dark:opacity-20 pointer-events-none"></div>
+        <div className="relative w-full hero-gradient pt-20 pb-20 lg:pt-32 lg:pb-32 z-30">
+            {/* Decorative blobs with their own overflow-hidden wrapper to avoid clipping the search dropdown */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                <div className="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 bg-secondary-lavender/30 dark:bg-primary/10 rounded-full blur-3xl opacity-50 dark:opacity-20"></div>
+                <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 bg-secondary-mint/30 dark:bg-primary/10 rounded-full blur-3xl opacity-50 dark:opacity-20"></div>
+            </div>
 
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
 

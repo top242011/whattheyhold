@@ -10,7 +10,7 @@ export function sanitizeInput(value: string): string {
  * Sanitizes a ticker symbol: uppercase alphanumeric only, max 10 chars.
  */
 export function sanitizeTicker(value: string): string {
-    return value.replace(/[^a-zA-Z0-9.]/g, '').toUpperCase().slice(0, 10);
+    return value.replace(/[^a-zA-Z0-9.\-]/g, '').toUpperCase().slice(0, 20);
 }
 
 /**

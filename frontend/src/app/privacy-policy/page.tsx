@@ -1,5 +1,4 @@
 import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
 
 export default function PrivacyPolicy() {
     return (
@@ -55,7 +54,6 @@ export default function PrivacyPolicy() {
                     </div>
                 </div>
             </main>
-            <Footer />
         </div>
     );
 }

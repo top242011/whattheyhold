@@ -12,9 +12,10 @@ interface FundClientWrapperProps {
     ticker: string;
     data: FundResponse;
     initialIsWatchlisted: boolean;
+    feederName?: string;
 }
 
-export function FundClientWrapper({ ticker, data, initialIsWatchlisted }: FundClientWrapperProps) {
+export function FundClientWrapper({ ticker, data, initialIsWatchlisted, feederName }: FundClientWrapperProps) {
     const [imagesLoaded, setImagesLoaded] = useState(false);
 
     useEffect(() => {
@@ -72,6 +73,25 @@ export function FundClientWrapper({ ticker, data, initialIsWatchlisted }: FundCl
 
             {/* Main Grid */}
             <main className="relative z-10 flex-1 w-full h-full p-6 pt-4 grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6 max-w-[1400px] mx-auto overflow-hidden animate-fade-in-up">
+                {/* Feeder Banner */}
+                {feederName && (
+                    <div className="lg:col-span-2 bg-blue-50/80 dark:bg-blue-900/20 border border-blue-200/50 dark:border-blue-800/50 rounded-2xl p-4 flex items-center justify-between shadow-sm backdrop-blur-sm">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center flex-shrink-0">
+                                <span className="text-xl">🇹🇭</span>
+                            </div>
+                            <div>
+                                <h3 className="text-sm font-semibold text-blue-900 dark:text-blue-100">
+                                    {feederName} invests in this Master Fund
+                                </h3>
+                                <p className="text-xs text-blue-700/80 dark:text-blue-300/80 mt-0.5">
+                                    You are viewing the underlying holdings of {data.fund.name || ticker}, which is the master fund for {feederName}.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 {/* Mobile: standalone fund info card */}
                 <div className="lg:hidden [&>div]:static">
                     <FundInfoOverlay fund={data.fund} lastUpdated={data.last_updated} initialIsWatchlisted={initialIsWatchlisted} />
@@ -82,7 +102,7 @@ export function FundClientWrapper({ ticker, data, initialIsWatchlisted }: FundCl
                     <div className="hidden lg:block">
                         <FundInfoOverlay fund={data.fund} lastUpdated={data.last_updated} initialIsWatchlisted={initialIsWatchlisted} />
                     </div>
-                    <WorldMap weights={data.country_weights} />
+                    <WorldMap weights={data.country_weights} sectors={data.sector_weights} />
                 </div>
 
                 {/* Right: Side Card */}

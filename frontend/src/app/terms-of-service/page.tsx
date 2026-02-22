@@ -1,5 +1,4 @@
 import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
 
 export default function TermsOfService() {
     return (
@@ -55,7 +54,6 @@ export default function TermsOfService() {
                     </div>
                 </div>
             </main>
-            <Footer />
         </div>
     );
 }

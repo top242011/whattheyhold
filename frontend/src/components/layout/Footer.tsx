@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { PieChart, Twitter, Linkedin, Github } from "lucide-react";
+import { PieChart, Twitter, Linkedin, Github, Facebook } from "lucide-react";
 import { useLocale } from "@/lib/i18n";
 
 export function Footer() {
@@ -23,16 +23,7 @@ export function Footer() {
                         </p>
                         <div className="flex gap-4">
                             <Link
-                                href="https://twitter.com"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-slate-400 hover:text-primary transition-colors"
-                                aria-label="Twitter"
-                            >
-                                <Twitter size={20} />
-                            </Link>
-                            <Link
-                                href="https://linkedin.com"
+                                href="https://www.linkedin.com/in/panupan-pitak-559b86230/"
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="text-slate-400 hover:text-primary transition-colors"
@@ -41,13 +32,31 @@ export function Footer() {
                                 <Linkedin size={20} />
                             </Link>
                             <Link
-                                href="https://github.com"
+                                href="https://github.com/top242011"
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="text-slate-400 hover:text-primary transition-colors"
                                 aria-label="GitHub"
                             >
                                 <Github size={20} />
+                            </Link>
+                            <Link
+                                href="https://web.facebook.com/top242011/"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-slate-400 hover:text-primary transition-colors"
+                                aria-label="Facebook"
+                            >
+                                <Facebook size={20} />
+                            </Link>
+                            <Link
+                                href="https://x.com/Panu_ttt"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-slate-400 hover:text-primary transition-colors"
+                                aria-label="Twitter"
+                            >
+                                <Twitter size={20} />
                             </Link>
                         </div>
                     </div>
@@ -70,9 +79,11 @@ export function Footer() {
                         </ul>
                     </div>
                 </div>
-                <div className="border-t border-slate-100 dark:border-slate-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-400">
-                    <p>{t.footer.copyright}</p>
-
+                <div className="border-t border-slate-100 dark:border-slate-800 pt-8 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 text-xs text-slate-400">
+                    <p className="shrink-0">{t.footer.copyright}</p>
+                    <p className="max-w-3xl lg:text-right leading-relaxed text-slate-400/80">
+                        {t.footer.disclaimer}
+                    </p>
                 </div>
             </div>
         </footer>

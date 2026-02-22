@@ -1,12 +1,9 @@
 "use client";
 
-import { Search, User, PieChart } from "lucide-react"; // User imported but not used in original, keeping or removing? keeping for now
+import { PieChart } from "lucide-react";
 import { ThemeToggle } from "../ThemeToggle";
 import { LanguageSwitcher } from "../LanguageSwitcher";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
 import Link from "next/link";
-import { UserButton } from "../UserButton";
 import { SearchBar } from "../SearchBar";
 
 interface DashboardNavProps {
@@ -39,7 +36,6 @@ export function DashboardNav({ currentTicker = "" }: DashboardNavProps) {
                     <div className="flex items-center gap-3">
                         <LanguageSwitcher />
                         <ThemeToggle />
-                        <UserButton />
                     </div>
                 </div>
             </div>

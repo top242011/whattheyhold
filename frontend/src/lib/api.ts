@@ -56,3 +56,20 @@ export async function getTrendingFunds(limit: number = 5) {
         return { status: 'error', message: String(error) };
     }
 }
+
+export async function getThaiFundInfo(ticker: string) {
+    try {
+        const res = await fetch(`${API_BASE_URL}/api/thai-fund-info/${ticker}`, {
+            cache: "no-store",
+        });
+
+        if (res.status === 404) return { status: 'not_found' };
+        if (!res.ok) return { status: 'error', message: res.statusText };
+
+        const data = await res.json();
+        return { status: 'ok', data };
+    } catch (error) {
+        console.error("API Error:", error);
+        return { status: 'error', message: String(error) };
+    }
+}

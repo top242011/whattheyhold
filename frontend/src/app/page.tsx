@@ -1,5 +1,4 @@
 import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
 import { HeroSection } from "@/components/home/HeroSection";
 import { FeaturesGrid } from "@/components/home/FeaturesGrid";
 import { TrendingFunds } from "@/components/home/TrendingFunds";
@@ -20,7 +19,6 @@ export default function Home() {
         <FeaturesGrid />
         <ToolsSection />
       </main>
-      <Footer />
     </div>
   );
 }
