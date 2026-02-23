@@ -32,21 +32,28 @@ export default function TermsOfService() {
                         </p>
 
                         <h2 className="text-2xl font-semibold text-slate-900 dark:text-white mt-8 mb-4">
-                            3. Disclaimer of Financial Advice
+                            3. User Data & Commercial Insights
+                        </h2>
+                        <p className="mb-4">
+                            If you opt-in via our cookie consent banner, WhatTheyHold collects anonymized behavioral data. You acknowledge and agree that we may aggregate this non-identifiable data to develop proprietary market insights, research reports, and other commercial products, which may be shared with or sold to third parties.
+                        </p>
+
+                        <h2 className="text-2xl font-semibold text-slate-900 dark:text-white mt-8 mb-4">
+                            4. Disclaimer of Financial Advice
                         </h2>
                         <p className="mb-4">
                             The information provided by WhatTheyHold is for educational and informational purposes only and should not be construed as financial or investment advice. You should always consult with a qualified financial advisor before making any investment decisions.
                         </p>
 
                         <h2 className="text-2xl font-semibold text-slate-900 dark:text-white mt-8 mb-4">
-                            4. Termination
+                            5. Termination
                         </h2>
                         <p className="mb-4">
                             WhatTheyHold reserves the right to terminate your access to the Site without any advance notice.
                         </p>
 
                         <h2 className="text-2xl font-semibold text-slate-900 dark:text-white mt-8 mb-4">
-                            5. Contact Information
+                            6. Contact Information
                         </h2>
                         <p className="mb-4">
                             If you have any questions about this Agreement, please feel free to contact us at terms@whattheyhold.com.

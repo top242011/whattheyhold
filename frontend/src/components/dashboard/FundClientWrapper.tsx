@@ -8,6 +8,7 @@ import { FundInfoOverlay } from "./FundInfoOverlay";
 import { HoldingsCard } from "./HoldingsCard";
 import { FundResponse } from "@/types/fund";
 import { useLocale } from "@/lib/i18n";
+import { analytics } from "@/lib/analytics";
 
 interface FundClientWrapperProps {
     ticker: string;
@@ -57,6 +58,16 @@ export function FundClientWrapper({ ticker, data, initialIsWatchlisted, feederNa
             mounted = false;
         };
     }, [data.holdings]);
+
+    useEffect(() => {
+        analytics.trackEvent("fund_view", {
+            ticker: ticker,
+            name: data.fund.name,
+            source: "yfinance",
+            is_feeder: !!feederName,
+            feeder_name: feederName || null
+        });
+    }, [ticker, data.fund.name, feederName]);
 
     if (!imagesLoaded) {
         return <FundSkeleton />;

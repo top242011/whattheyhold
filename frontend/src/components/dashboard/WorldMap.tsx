@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { CountryWeight, SectorWeight } from "@/types/fund";
 import { useLocale } from "@/lib/i18n";
 import { SectorTreeMap } from "./SectorTreeMap";
+import { analytics } from "@/lib/analytics";
 
 // Public topojson URL
 const GEO_URL = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
@@ -144,6 +145,17 @@ export function WorldMap({ weights, sectors = [], view: externalView, onViewChan
                                                         setTooltipPos({
                                                             x: evt.clientX - rect.left,
                                                             y: evt.clientY - rect.top
+                                                        });
+                                                    }
+                                                }}
+                                                onClick={() => {
+                                                    // Track map click event
+                                                    const w = getWeight(geo.id);
+                                                    if (w > 0) {
+                                                        analytics.trackEvent("map_click", {
+                                                            country_code: geo.id,
+                                                            country_name: geo.properties.name,
+                                                            weight_pct: w
                                                         });
                                                     }
                                                 }}

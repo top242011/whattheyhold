@@ -25,17 +25,24 @@ export default function PrivacyPolicy() {
                         </p>
 
                         <h2 className="text-2xl font-semibold text-slate-900 dark:text-white mt-8 mb-4">
-                            2. How We Use Your Information
+                            2. How We Use Your Information, Analytics & Data Monetization
                         </h2>
                         <p className="mb-4">
-                            We use the information we collect to operate, maintain, and provide you with the features and functionality of the Service, to communicate with you, and to monitor and improve our Service.
+                            We use the information we collect to operate, maintain, and provide you with better features.
+                            Through our cookie consent banner, you may opt-in to allow us to collect anonymous usage data (e.g., pages visited, funds searched, and interactions with our maps).
+                        </p>
+                        <p className="mb-4">
+                            <strong>Commercial Use of Data:</strong> All analytics data is anonymized and aggregated. We do not collect or store personally identifiable information (PII) such as IP addresses or emails for analytics. We may use this aggregated, non-identifiable data to build market insights, predictive models, or research reports, which may be shared with or sold to third-party financial institutions, asset managers, or other commercial partners.
+                        </p>
+                        <p className="mb-4">
+                            <strong>Affiliate & Referral Tracking:</strong> If you interact with external links or partner offers (such as opening an account with a broker), we may track these clicks anonymously to attribute referrals and earn affiliate commissions.
                         </p>
 
                         <h2 className="text-2xl font-semibold text-slate-900 dark:text-white mt-8 mb-4">
                             3. Sharing Your Personal Information
                         </h2>
                         <p className="mb-4">
-                            We do not sell, trade, or otherwise transfer to outside parties your Personally Identifiable Information unless we provide users with advance notice. We may share your Personal Information to comply with applicable laws and regulations.
+                            We <strong>do not sell, trade, or otherwise transfer your Personally Identifiable Information (PII)</strong> to outside parties. However, as stated above, we may share or monetize <strong>fully anonymized and aggregated behavioral data</strong> with our business partners. We may also share Personal Information only when required to comply with applicable laws and regulations.
                         </p>
 
                         <h2 className="text-2xl font-semibold text-slate-900 dark:text-white mt-8 mb-4">

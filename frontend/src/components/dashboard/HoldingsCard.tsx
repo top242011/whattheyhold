@@ -85,32 +85,25 @@ export function HoldingsCard({ holdings }: HoldingsCardProps) {
                         holdings.map((stock, index) => (
                             <motion.div
                                 key={stock.ticker}
-                                role="button"
-                                tabIndex={0}
                                 initial={{ opacity: 0, x: -20 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 transition={{ delay: index * 0.05 }}
-                                className="w-full group flex items-center justify-between p-3 rounded-2xl hover:bg-white dark:hover:bg-slate-800 transition-all border border-transparent hover:border-slate-100 dark:hover:border-slate-700 hover:shadow-md cursor-pointer text-left focus:outline-none focus:ring-2 focus:ring-primary/50"
-                                onClick={() => toast.info(`${t.toast.selected} ${stock.ticker}`)}
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter' || e.key === ' ') {
-                                        e.preventDefault();
-                                        toast.info(`${t.toast.selected} ${stock.ticker}`);
-                                    }
-                                }}
+                                className="w-full group flex items-center justify-between p-3 rounded-2xl hover:bg-white dark:hover:bg-slate-800 transition-all border border-transparent hover:border-slate-100 dark:hover:border-slate-700 hover:shadow-md text-left"
                             >
-                                <div className="flex items-center gap-3">
-                                    <CompanyLogo ticker={stock.ticker} size={40} />
-                                    <div className="flex flex-col">
-                                        <span className="text-sm font-bold text-slate-900 dark:text-white truncate max-w-[100px] sm:max-w-none">
+                                <div className="flex items-center gap-3 min-w-0 flex-1">
+                                    <div className="flex-shrink-0">
+                                        <CompanyLogo ticker={stock.ticker} size={40} />
+                                    </div>
+                                    <div className="flex flex-col min-w-0 pr-2">
+                                        <span className="text-sm font-bold text-slate-900 dark:text-white truncate block">
                                             {stock.name}
                                         </span>
-                                        <span className="text-xs font-semibold text-slate-400 bg-slate-100 dark:bg-slate-700 px-1.5 py-0.5 rounded w-fit">
+                                        <span className="text-xs font-semibold text-slate-400 bg-slate-100 dark:bg-slate-700 px-1.5 py-0.5 rounded w-fit mt-0.5">
                                             {stock.ticker}
                                         </span>
                                     </div>
                                 </div>
-                                <div className="flex flex-col items-end gap-1">
+                                <div className="flex flex-col items-end gap-1 flex-shrink-0 pl-2">
                                     <span className="text-sm font-bold text-primary-dark dark:text-primary">
                                         {stock.pct.toFixed(2)}%
                                     </span>

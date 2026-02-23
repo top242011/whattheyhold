@@ -4,6 +4,7 @@ from services.yfinance_service import get_fund_data
 from services.db_service import db_service
 from services.sec_service import sec_service, map_master_fund_to_ticker
 from services.sec_db_service import sec_db_service
+from services.analytics_service import analytics_service
 from dataclasses import asdict
 
 app = Flask(__name__)
@@ -215,6 +216,41 @@ def list_feeder_funds():
     except Exception as e:
         print(f"Error listing feeder funds: {e}")
         return jsonify({"error": "Internal Server Error"}), 500
+
+# ─── Analytics Routes ────────────────────────────────────────────────────────
+
+@app.route('/api/analytics/session', methods=['POST'])
+def create_analytics_session():
+    data = request.json
+    if not data or 'anonymous_id' not in data:
+        return jsonify({"status": "error", "message": "anonymous_id is required"}), 400
+        
+    session_id = analytics_service.create_session(
+        anonymous_id=data.get('anonymous_id'),
+        locale=data.get('locale', 'unknown'),
+        device_type=data.get('device_type', 'unknown'),
+        referrer=data.get('referrer')
+    )
+    
+    if session_id:
+        return jsonify({"status": "success", "session_id": session_id})
+    return jsonify({"status": "error", "message": "Failed to create session"}), 500
+
+@app.route('/api/analytics/event', methods=['POST'])
+def track_analytics_event():
+    data = request.json
+    if not data or 'session_id' not in data or 'event_type' not in data:
+        return jsonify({"status": "error", "message": "session_id and event_type are required"}), 400
+        
+    success = analytics_service.track_event(
+        session_id=data.get('session_id'),
+        event_type=data.get('event_type'),
+        event_data=data.get('event_data', {})
+    )
+    
+    if success:
+        return jsonify({"status": "success"})
+    return jsonify({"status": "error", "message": "Failed to track event"}), 500
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000, debug=True)

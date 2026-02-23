@@ -8,6 +8,7 @@ import { useLocale } from "@/lib/i18n";
 import { motion, AnimatePresence } from "framer-motion";
 import { convertThaiToEng } from "@/lib/thai-mapper";
 import { sanitizeTicker } from "@/lib/sanitize";
+import { analytics } from "@/lib/analytics";
 
 // Client-side: empty string = relative URL, works via Vercel rewrites
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
@@ -94,6 +95,13 @@ export function SearchBar({ initialValue = "" }: SearchBarProps) {
         setIsOpen(false);
         // Convert Thai characters on submit (for ticker lookup)
         const ticker = sanitizeTicker(convertThaiToEng(query.trim()));
+
+        analytics.trackEvent("search_query", {
+            query: query.trim(),
+            method: "submit",
+            destination: ticker
+        });
+
         // If we hit Enter instead of clicking an auto-complete result, we don't have the source/feeder info easily available here.
         // It will just be a standard ticker lookup, which is fine for direct searches.
         router.push(`/fund/${ticker}`);
@@ -101,6 +109,14 @@ export function SearchBar({ initialValue = "" }: SearchBarProps) {
 
     const handleSelect = (result: SearchResult) => {
         setIsOpen(false);
+
+        analytics.trackEvent("search_query", {
+            query: query.trim(),
+            method: "select",
+            destination: result.ticker,
+            source: result.source || "yf"
+        });
+
         if (result.source === "sec") {
             // Thai fund: navigate to master fund ticker if available, else navigate to its own abbreviation
             if (result.master_ticker) {

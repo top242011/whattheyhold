@@ -4,6 +4,8 @@ import "./globals.css";
 import { Toaster } from "sonner";
 import { LocaleProvider } from "@/lib/i18n";
 import { Footer } from "@/components/layout/Footer";
+import { AnalyticsProvider } from "@/components/AnalyticsProvider";
+import { CookieConsent } from "@/components/CookieConsent";
 
 // Initialize fonts
 const inter = Inter({
@@ -56,12 +58,15 @@ export default function RootLayout({
         className="antialiased"
       >
         <LocaleProvider>
-          <div className="flex flex-col min-h-screen">
-            <div className="flex-1">
-              {children}
+          <AnalyticsProvider>
+            <div className="flex flex-col min-h-screen">
+              <div className="flex-1">
+                {children}
+              </div>
+              <Footer />
             </div>
-            <Footer />
-          </div>
+            <CookieConsent />
+          </AnalyticsProvider>
         </LocaleProvider>
         <Toaster position="top-center" richColors />
       </body>

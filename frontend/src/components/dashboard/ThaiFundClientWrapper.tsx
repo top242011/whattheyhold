@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DashboardNav } from "./DashboardNav";
 import { Ghost } from "lucide-react";
+import { analytics } from "@/lib/analytics";
 
 interface Top5Holding {
     asset_name?: string;
@@ -37,6 +38,16 @@ export function ThaiFundClientWrapper({ ticker, data }: ThaiFundClientWrapperPro
 
     const displayName = fund_info.proj_abbr_name || ticker;
     const fullName = fund_info.proj_name_en || fund_info.proj_name_th;
+
+    useEffect(() => {
+        analytics.trackEvent("fund_view", {
+            ticker: displayName,
+            name: fullName,
+            source: "sec",
+            proj_id: fund_info.proj_id,
+            is_feeder: false // This wrapper is specifically for non-feeder Thai funds
+        });
+    }, [displayName, fullName, fund_info.proj_id]);
 
     return (
         <div className="min-h-screen bg-background-light dark:bg-background-dark flex flex-col overflow-hidden relative selection:bg-primary selection:text-white">
