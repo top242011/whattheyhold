@@ -53,6 +53,11 @@ class SECDBService:
                 .execute()
             )
             if result.data and len(result.data) > 0:
+                # Increment view count asynchronously
+                try:
+                    self.supabase.rpc('increment_thai_fund_view', {'p_proj_id': proj_id}).execute()
+                except Exception as e:
+                    print(f"Failed to increment view for thai fund {proj_id}: {e}")
                 return result.data[0]
             return None
         except Exception as e:
@@ -91,7 +96,8 @@ class SECDBService:
                     f"proj_name_en.ilike.%{query}%,"
                     f"proj_name_th.ilike.%{query}%,"
                     f"proj_abbr_name.ilike.%{query}%,"
-                    f"proj_id.ilike.%{query}%"
+                    f"proj_id.ilike.%{query}%,"
+                    f"amc_name_en.ilike.%{query}%"
                 )
                 .limit(limit)
                 .execute()
@@ -99,6 +105,33 @@ class SECDBService:
             return result.data or []
         except Exception as e:
             print(f"Error searching thai funds: {e}")
+            return []
+
+    # ─── AMC List ─────────────────────────────────────────────────
+
+    def get_distinct_amcs(self) -> List[str]:
+        """Get distinct AMC names from Thai funds."""
+        if not self.supabase:
+            return []
+        try:
+            result = (
+                self.supabase.table("thai_funds")
+                .select("amc_name_en")
+                .not_.is_("amc_name_en", "null")
+                .order("amc_name_en")
+                .execute()
+            )
+            # Deduplicate
+            seen = set()
+            amcs = []
+            for row in (result.data or []):
+                name = row.get("amc_name_en", "").strip()
+                if name and name not in seen:
+                    seen.add(name)
+                    amcs.append(name)
+            return amcs
+        except Exception as e:
+            print(f"Error getting distinct AMCs: {e}")
             return []
 
     # ─── Feeder Master Mapping ──────────────────────────────────────

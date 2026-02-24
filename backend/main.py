@@ -89,6 +89,79 @@ def search_funds():
         print(f"Error searching funds: {e}")
         return jsonify({"error": "Internal Server Error"}), 500
 
+@app.route("/api/search/all")
+def search_all_funds():
+    """Extended search with pagination and filters."""
+    query = request.args.get("q", "")
+    limit = request.args.get("limit", default=20, type=int)
+    fund_type = request.args.get("type", "")   # "etf" | "mutual" | ""
+    source = request.args.get("source", "")     # "yf" | "sec" | ""
+    issuer = request.args.get("issuer", "")     # exact AMC name
+
+    results = []
+    try:
+        # 1. Search YFinance funds (source="yf") — skip if issuer filter active
+        if source in ["", "yf"] and not issuer:
+            yf_query = db_service.supabase.table('funds').select('ticker, name')
+            if query:
+                yf_query = yf_query.or_(f"ticker.ilike.%{query}%,name.ilike.%{query}%")
+            
+            yf_data = yf_query.limit(limit).execute().data or []
+            
+            for f in yf_data:
+                # filter by type if specified (assuming mostly ETFs in YF for now)
+                if fund_type == "mutual": continue
+                results.append({
+                    "ticker": f.get("ticker"),
+                    "name": f.get("name"),
+                    "source": "yf",
+                    "type": "ETF"
+                })
+                
+        # 2. Search Thai funds (source="sec")
+        if source in ["", "sec"]:
+            sec_query = sec_db_service.supabase.table('thai_funds').select(
+                "proj_id, proj_name_th, proj_name_en, proj_abbr_name, is_feeder_fund, amc_name_en, fund_type"
+            )
+            if query:
+                sec_query = sec_query.or_(
+                    f"proj_name_en.ilike.%{query}%,proj_name_th.ilike.%{query}%,proj_abbr_name.ilike.%{query}%,proj_id.ilike.%{query}%,amc_name_en.ilike.%{query}%"
+                )
+            if issuer:
+                sec_query = sec_query.eq("amc_name_en", issuer)
+
+            sec_data = sec_query.limit(limit * 2).execute().data or []
+            
+            for tf in sec_data:
+                t_type = str(tf.get("fund_type") or "").upper()
+                is_etf = "ETF" in t_type
+                
+                if fund_type == "etf" and not is_etf:
+                    continue
+                if fund_type == "mutual" and is_etf:
+                    continue
+                    
+                t_abbrev = tf.get("proj_abbr_name") or tf.get("proj_id", "")
+                
+                results.append({
+                    "ticker": t_abbrev,
+                    "name": tf.get("proj_name_en") or tf.get("proj_name_th", ""),
+                    "proj_id": tf.get("proj_id", ""),
+                    "source": "sec",
+                    "is_feeder_fund": tf.get("is_feeder_fund", False),
+                    "type": "ETF" if is_etf else "Mutual Fund",
+                    "amc": tf.get("amc_name_en")
+                })
+                
+        # Return merged results
+        return jsonify({
+            "results": results[:limit],
+            "has_more": len(results) > limit
+        })
+    except Exception as e:
+        print(f"Error searching all funds: {e}")
+        return jsonify({"error": "Internal Server Error"}), 500
+
 # ─── Thai Fund Routes (SEC Open Data) ────────────────────────────
 
 @app.route("/api/thai-funds/search")
@@ -206,6 +279,33 @@ def get_thai_fund_holdings(proj_id):
         print(f"Error fetching Thai fund holdings {proj_id}: {e}")
         return jsonify({"error": "Internal Server Error"}), 500
 
+@app.route("/api/thai-funds/amcs")
+def list_amcs():
+    """List distinct AMC (asset management company) names from Thai funds."""
+    import re
+    try:
+        amcs = sec_db_service.get_distinct_amcs()
+        # Strip common suffixes for short display names
+        suffixes = [
+            r"\s+PUBLIC\s+COMPANY\s+LIMITED$",
+            r"\s+COMPANY\s+LIMITED$",
+            r"\s+CO\.,?\s*LTD\.?$",
+            r"\s+CORPORATION$",
+            r"\s+CORP\.?$",
+            r"\s+LIMITED$",
+            r"\s+LTD\.?$",
+        ]
+        results = []
+        for full_name in amcs:
+            short = full_name.strip()
+            for suffix in suffixes:
+                short = re.sub(suffix, "", short, flags=re.IGNORECASE).strip()
+            results.append({"full_name": full_name, "short_name": short})
+        return jsonify({"amcs": results})
+    except Exception as e:
+        print(f"Error listing AMCs: {e}")
+        return jsonify({"error": "Internal Server Error"}), 500
+
 @app.route("/api/thai-funds/feeders")
 def list_feeder_funds():
     """List all Thai feeder funds with their master fund mappings."""
@@ -216,6 +316,30 @@ def list_feeder_funds():
     except Exception as e:
         print(f"Error listing feeder funds: {e}")
         return jsonify({"error": "Internal Server Error"}), 500
+
+# ─── Waitlist Routes ─────────────────────────────────────────────────────────
+
+@app.route('/api/waitlist', methods=['POST'])
+def subscribe_waitlist():
+    import re
+    data = request.json
+    if not data or 'email' not in data:
+        return jsonify({"status": "error", "message": "email is required"}), 400
+
+    email = data['email'].strip().lower()
+    if not re.match(r'^[^\s@]+@[^\s@]+\.[^\s@]+$', email) or len(email) > 254:
+        return jsonify({"status": "error", "message": "Invalid email"}), 400
+
+    try:
+        source = data.get('source', 'navbar')
+        db_service.supabase.table("waitlist_emails").upsert(
+            {"email": email, "source": source},
+            on_conflict="email"
+        ).execute()
+        return jsonify({"status": "success"})
+    except Exception as e:
+        print(f"Error saving waitlist email: {e}")
+        return jsonify({"status": "error", "message": "Failed to save email"}), 500
 
 # ─── Analytics Routes ────────────────────────────────────────────────────────
 
