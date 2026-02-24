@@ -25,7 +25,7 @@ export const th: Translations = {
     heading: "ดูให้ชัดว่า",
     headingHighlight: "คุณลงทุนอะไร",
     subheading:
-      "สำรวจพอร์ตกองทุน ETF และกองทุนรวมทั่วโลกได้ในไม่กี่วินาที ด้วยเครื่องมือที่ใช้ง่ายและสนุก",
+      "สำรวจพอร์ตกองทุน ETF และกองทุนรวมทั่วโลกได้ในไม่กี่วินาที",
     searchPlaceholder: "ค้นหา ETF หรือกองทุน (เช่น VOO, ARKK)",
     popular: "ยอดนิยม:",
   },
@@ -44,7 +44,7 @@ export const th: Translations = {
       "ฟีเจอร์ครบครัน เข้าใจทะลุปรุโปร่งในไม่กี่คลิก",
   },
   dashboard: {
-    topHoldings: "หุ้นถือครองหลัก",
+    topHoldings: "หุ้นหลักที่ถือครอง",
     largestAssets: "สินทรัพย์ 10 อันดับแรก",
     viewAll: "ดูทั้งหมด",
     noHoldings: "ไม่มีข้อมูลการถือครอง",

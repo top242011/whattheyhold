@@ -6,6 +6,8 @@ import { LocaleProvider } from "@/lib/i18n";
 import { Footer } from "@/components/layout/Footer";
 import { AnalyticsProvider } from "@/components/AnalyticsProvider";
 import { CookieConsent } from "@/components/CookieConsent";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 // Initialize fonts
 const inter = Inter({
@@ -71,6 +73,8 @@ export default function RootLayout({
           </AnalyticsProvider>
         </LocaleProvider>
         <Toaster position="top-center" richColors />
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
