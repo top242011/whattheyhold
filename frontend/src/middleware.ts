@@ -1,9 +1,19 @@
-import { type NextRequest } from 'next/server'
+import { type NextRequest, NextResponse } from 'next/server'
 import { updateSession } from '@/utils/supabase/middleware'
 
 export async function middleware(request: NextRequest) {
-    // Update user's auth session
-    return await updateSession(request)
+    // Pass pathname to server components via request header (used by root layout
+    // to conditionally hide site elements on admin routes)
+    const requestHeaders = new Headers(request.headers)
+    requestHeaders.set('x-pathname', request.nextUrl.pathname)
+
+    // Update user's auth session (returns a NextResponse)
+    const response = await updateSession(request)
+
+    // Forward the pathname header so root layout can detect admin routes
+    response.headers.set('x-pathname', request.nextUrl.pathname)
+
+    return response
 }
 
 export const config = {

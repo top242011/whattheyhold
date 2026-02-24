@@ -1,0 +1,121 @@
+/* Custom styles for the new Dashboard (Light Mode Theme) */
+:root {
+    --theme-bg: #ffffff;
+    --theme-elevation-50: #ffffff;
+    --theme-elevation-100: #fafafa;
+    --theme-elevation-150: #f4f4f5;
+    --theme-elevation-200: #e4e4e7;
+
+    --theme-text: #18181b;
+    --theme-text-dim: #71717a;
+
+    --theme-success-400: #10b981;
+    --theme-error-400: #ef4444;
+    --theme-warning-400: #f59e0b;
+
+    /* Modern clean fonts */
+    --font-body: 'Inter', 'IBM Plex Sans Thai', sans-serif !important;
+}
+
+body,
+.payload-default {
+    background-color: var(--theme-bg) !important;
+    color: var(--theme-text) !important;
+}
+
+.custom-dashboard {
+    padding: 3rem 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.custom-dashboard-header {
+    margin-bottom: 2.5rem;
+}
+
+.custom-dashboard-header h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.5rem;
+    color: var(--theme-text);
+}
+
+.custom-dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.custom-card {
+    background: var(--theme-elevation-50);
+    border: 1px solid var(--theme-elevation-200);
+    border-radius: 12px;
+    padding: 1.5rem;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.custom-card:hover {
+    border-color: #d4d4d8;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
+    background: var(--theme-elevation-100);
+}
+
+.custom-card h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--theme-text);
+}
+
+.custom-card p {
+    color: var(--theme-text-dim);
+    font-size: 0.875rem;
+    margin-bottom: 1.5rem;
+    flex-grow: 1;
+}
+
+.custom-card-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--theme-text);
+    font-weight: 500;
+    font-size: 0.875rem;
+    text-decoration: none;
+    background: var(--theme-elevation-200);
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    width: fit-content;
+    transition: background 0.2s;
+}
+
+.custom-card-action:hover {
+    background: #d4d4d8;
+}
+
+/* Sub-branding for Analytics */
+.analytics-hero {
+    background: linear-gradient(145deg, #fafafa, #ffffff);
+    border: 1px solid var(--theme-elevation-200);
+    border-radius: 16px;
+    padding: 2.5rem;
+    margin-bottom: 2rem;
+}
+
+.analytics-stat-card {
+    background: var(--theme-elevation-50);
+    border: 1px solid var(--theme-elevation-200);
+    border-radius: 12px;
+    padding: 1.5rem;
+}
+
+.analytics-stat-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--theme-text);
+    margin-top: 0.5rem;
+}

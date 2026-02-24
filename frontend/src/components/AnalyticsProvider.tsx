@@ -21,13 +21,10 @@ function AnalyticsTracker({ hasConsent }: { hasConsent: boolean }) {
     // Track page views automatically when route changes
     useEffect(() => {
         if (hasConsent) {
-            // Give a slight delay to allow session init to complete if it just started
-            setTimeout(() => {
-                analytics.trackEvent("page_view", {
-                    path: pathname,
-                    search: searchParams?.toString() || ""
-                });
-            }, 500);
+            analytics.trackEvent("page_view", {
+                path: pathname,
+                search: searchParams?.toString() || ""
+            });
         }
     }, [pathname, searchParams, hasConsent]);
 

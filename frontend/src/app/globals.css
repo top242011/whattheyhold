@@ -72,6 +72,15 @@ body {
   font-family: var(--font-sans);
 }
 
+/* Hide scrollbar utility */
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 h1,
 h2,
 h3,
@@ -80,6 +89,19 @@ h5,
 h6,
 .font-heading {
   font-family: var(--font-heading);
+}
+
+/* Hide site layout chrome (Footer, Toaster) when Payload admin UI is active */
+body:has([data-payload-admin]) .site-footer,
+body:has([data-payload-admin]) [data-sonner-toaster],
+body:has([data-payload-admin]) [data-cookie-consent] {
+  display: none !important;
+}
+
+/* Payload admin: remove site min-height wrapper constraints */
+body:has([data-payload-admin]) .site-layout-wrapper {
+  min-height: unset;
+  display: block;
 }
 
 @layer utilities {

@@ -23,24 +23,19 @@ interface LocaleContextValue {
 
 const LocaleContext = createContext<LocaleContextValue>({
   locale: "en",
-  setLocale: () => {},
+  setLocale: () => { },
   t: en,
 });
 
 export function LocaleProvider({ children }: { children: React.ReactNode }) {
-  const [locale, setLocaleState] = useState<Locale>("en");
-
-  useEffect(() => {
-    const saved = localStorage.getItem("locale") as Locale | null;
-    if (saved && dictionaries[saved]) {
-      setLocaleState(saved);
-      return;
+  const [locale, setLocaleState] = useState<Locale>(() => {
+    // Read from <html lang="..."> which is set synchronously by the inline script in layout.tsx
+    if (typeof document !== "undefined") {
+      const htmlLang = document.documentElement.lang;
+      if (htmlLang === "th" || htmlLang === "en") return htmlLang as Locale;
     }
-    const browserLang = navigator.language;
-    if (browserLang.startsWith("th")) {
-      setLocaleState("th");
-    }
-  }, []);
+    return "en";
+  });
 
   useEffect(() => {
     document.documentElement.lang = locale;

@@ -3,9 +3,10 @@
 import React, { useState, useRef, useEffect } from "react";
 import { ComposableMap, Geographies, Geography, ZoomableGroup } from "react-simple-maps";
 import { motion, AnimatePresence } from "framer-motion";
-import { CountryWeight, SectorWeight } from "@/types/fund";
+import { CountryWeight, SectorWeight, Holding } from "@/types/fund";
 import { useLocale } from "@/lib/i18n";
 import { SectorTreeMap } from "./SectorTreeMap";
+import { PortfolioCalculator } from "./PortfolioCalculator";
 import { analytics } from "@/lib/analytics";
 
 // Public topojson URL
@@ -41,8 +42,9 @@ const COUNTRY_COORDINATES: Record<string, [number, number]> = {
 interface WorldMapProps {
     weights: CountryWeight[];
     sectors?: SectorWeight[];
-    view?: "weight" | "sector";
-    onViewChange?: (v: "weight" | "sector") => void;
+    holdings?: Holding[];
+    view?: "weight" | "sector" | "calculator";
+    onViewChange?: (v: "weight" | "sector" | "calculator") => void;
 }
 
 const colors = [
@@ -51,11 +53,11 @@ const colors = [
     "bg-teal-500", "bg-orange-500", "bg-violet-500", "bg-pink-500"
 ];
 
-export function WorldMap({ weights, sectors = [], view: externalView, onViewChange }: WorldMapProps) {
+export function WorldMap({ weights, sectors = [], holdings = [], view: externalView, onViewChange }: WorldMapProps) {
     const [tooltipContent, setTooltipContent] = useState("");
     const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
     const [position, setPosition] = useState({ coordinates: [0, 0], zoom: 1 });
-    const [internalView, setInternalView] = useState<"weight" | "sector">("weight");
+    const [internalView, setInternalView] = useState<"weight" | "sector" | "calculator">("weight");
     const view = externalView ?? internalView;
     const setView = onViewChange ?? setInternalView;
     const [isDark, setIsDark] = useState(false);
@@ -196,6 +198,18 @@ export function WorldMap({ weights, sectors = [], view: externalView, onViewChan
                         </div>
                     </motion.div>
                 )}
+
+                {/* Portfolio Calculator View */}
+                {view === "calculator" && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="absolute inset-0 bg-slate-50 dark:bg-slate-900 z-10 p-4 lg:p-8 flex flex-col gap-2 rounded-[30px] overflow-hidden"
+                    >
+                        <PortfolioCalculator holdings={holdings} />
+                    </motion.div>
+                )}
             </AnimatePresence>
 
             {/* Map Controls */}
@@ -243,15 +257,15 @@ export function WorldMap({ weights, sectors = [], view: externalView, onViewChan
 }
 
 /** Standalone toggle component, used by parent on mobile */
-export function MapViewToggle({ view, onViewChange }: { view: "weight" | "sector"; onViewChange: (v: "weight" | "sector") => void }) {
+export function MapViewToggle({ view, onViewChange }: { view: "weight" | "sector" | "calculator"; onViewChange: (v: "weight" | "sector" | "calculator") => void }) {
     const { t } = useLocale();
     return (
-        <div className="glass-panel p-1.5 rounded-full shadow-lg flex items-center gap-1 bg-white/80 dark:bg-slate-800/80 w-fit mx-auto">
+        <div className="glass-panel p-1.5 rounded-full shadow-lg flex items-center gap-1 bg-white/80 dark:bg-slate-800/80 w-fit mx-auto relative z-10">
             <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={() => onViewChange("weight")}
                 className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${view === "weight"
-                    ? "bg-slate-900 text-white shadow-md"
+                    ? "bg-slate-900 text-white shadow-md dark:bg-white dark:text-slate-900"
                     : "hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300"
                     }`}
                 aria-label={t.map.viewByWeight}
@@ -262,12 +276,34 @@ export function MapViewToggle({ view, onViewChange }: { view: "weight" | "sector
                 whileTap={{ scale: 0.95 }}
                 onClick={() => onViewChange("sector")}
                 className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${view === "sector"
-                    ? "bg-slate-900 text-white shadow-md"
+                    ? "bg-slate-900 text-white shadow-md dark:bg-white dark:text-slate-900"
                     : "hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300"
                     }`}
                 aria-label={t.map.viewBySector}
             >
                 {t.map.bySector}
+            </motion.button>
+
+            <div className="w-px h-5 bg-slate-200 dark:bg-slate-700 mx-1"></div>
+
+            <motion.button
+                whileTap={{ scale: 0.95 }}
+                onClick={() => onViewChange("calculator")}
+                className={`relative px-4 py-2 rounded-full text-sm font-medium transition-all group overflow-hidden ${view === "calculator"
+                    ? "bg-emerald-500 text-white shadow-md shadow-emerald-500/20"
+                    : "hover:bg-emerald-50 dark:hover:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                    }`}
+                aria-label={t.map.viewCalculator}
+            >
+                {view !== "calculator" && (
+                    <span className="absolute inset-0 bg-emerald-400/10 dark:bg-emerald-400/20 animate-pulse rounded-full z-0"></span>
+                )}
+                <span className="relative z-10 flex items-center gap-1.5">
+                    {t.map.calculator}
+                    <span className="text-[9px] font-black tracking-wider bg-emerald-500 text-white dark:bg-emerald-400 dark:text-emerald-950 px-1.5 py-0.5 rounded-full uppercase">
+                        {t.calculator.newBadge}
+                    </span>
+                </span>
             </motion.button>
         </div>
     );

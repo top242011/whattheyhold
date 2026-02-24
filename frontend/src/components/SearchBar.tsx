@@ -217,10 +217,14 @@ export function SearchBar({ initialValue = "" }: SearchBarProps) {
                         >
                             <button
                                 type="button"
-                                onClick={() => handleSubmit()}
-                                className="text-xs font-bold text-primary-dark dark:text-primary hover:text-primary-dark dark:text-primary-dark cursor-pointer flex-1 py-1 px-4 rounded-xl hover:bg-slate-200/50 dark:hover:bg-slate-700/50 transition-colors"
+                                onClick={() => {
+                                    setIsOpen(false);
+                                    router.push(`/search?q=${encodeURIComponent(query)}`);
+                                }}
+                                className="text-xs font-bold text-primary-dark dark:text-primary hover:text-primary-dark dark:text-primary-dark cursor-pointer flex-1 py-1 px-4 rounded-xl hover:bg-slate-200/50 dark:hover:bg-slate-700/50 transition-colors gap-2 flex items-center justify-center"
                             >
-                                Search specifically for &quot;{query}&quot;
+                                <span>{t.search.searchAllFunds.replace("{query}", query)}</span>
+                                <ArrowRight size={14} />
                             </button>
                         </div>
                     </motion.div>

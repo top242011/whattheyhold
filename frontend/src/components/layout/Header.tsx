@@ -24,15 +24,25 @@ export function Header() {
         setIsSubscribed(localStorage.getItem(STORAGE_KEY) === "true");
     }, []);
 
-    const handleSubscribe = (e: React.MouseEvent) => {
+    const handleSubscribe = async (e: React.MouseEvent) => {
         e.preventDefault();
         if (!email.trim() || !isValidEmail(email)) {
             toast.error(t.toast.enterValidEmail || "Please enter a valid email");
             return;
         }
-        localStorage.setItem(STORAGE_KEY, "true");
-        setJustSubscribed(true);
-        setIsSubscribed(true);
+        try {
+            const res = await fetch("/api/waitlist", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email: email.trim(), source: "navbar" }),
+            });
+            if (!res.ok) throw new Error();
+            localStorage.setItem(STORAGE_KEY, "true");
+            setJustSubscribed(true);
+            setIsSubscribed(true);
+        } catch {
+            toast.error(t.toast.somethingWentWrong || "Something went wrong. Please try again.");
+        }
     };
 
     return (

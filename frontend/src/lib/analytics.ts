@@ -22,14 +22,11 @@ class AnalyticsClient {
     private eventQueue: AnalyticsEvent[] = [];
     private isClient: boolean = false;
     private batchTimer: NodeJS.Timeout | null = null;
-    private isInitializing: boolean = false;
+    private sessionReadyPromise: Promise<void> | null = null;
+    private resolveSessionReady: (() => void) | null = null;
 
     constructor() {
         this.isClient = typeof window !== 'undefined';
-        if (this.isClient) {
-            // Check for existing consent but DO NOT auto-initialize. 
-            // Initialization happens in AnalyticsProvider or after explicit consent.
-        }
     }
 
     public hasConsent(): boolean {
@@ -45,10 +42,12 @@ class AnalyticsClient {
         if (!this.isClient) return;
         try {
             localStorage.setItem(CONSENT_KEY, granted ? 'true' : 'false');
-            if (granted && !this.sessionId && !this.isInitializing) {
+            if (granted && !this.sessionId && !this.sessionReadyPromise) {
                 this.initSession();
             } else if (!granted) {
                 this.sessionId = null;
+                this.sessionReadyPromise = null;
+                this.resolveSessionReady = null;
                 this.eventQueue = [];
                 if (this.batchTimer) {
                     clearInterval(this.batchTimer);
@@ -61,11 +60,14 @@ class AnalyticsClient {
     }
 
     public async initSession() {
-        if (!this.isClient || !this.hasConsent() || this.sessionId || this.isInitializing) return;
+        if (!this.isClient || !this.hasConsent() || this.sessionId || this.sessionReadyPromise) return;
 
-        this.isInitializing = true;
+        // Create a promise that resolves when session is ready, so trackEvent can await it
+        this.sessionReadyPromise = new Promise<void>((resolve) => {
+            this.resolveSessionReady = resolve;
+        });
+
         try {
-            // Generate or retrieve anonymous_id for the device (browser scope)
             let anonymousId = localStorage.getItem('anonymous_id');
             if (!anonymousId) {
                 anonymousId = crypto.randomUUID();
@@ -88,6 +90,8 @@ class AnalyticsClient {
                 if (data.session_id) {
                     this.sessionId = data.session_id;
                     this.startBatchProcessing();
+                    // Flush any events that were queued while waiting for session
+                    this.flushEvents();
                     this.trackEvent('session_start', {
                         url: window.location.href,
                         path: window.location.pathname
@@ -97,7 +101,8 @@ class AnalyticsClient {
         } catch (e) {
             console.error('Failed to init analytics session:', e);
         } finally {
-            this.isInitializing = false;
+            // Resolve so any awaiting trackEvent calls can proceed
+            this.resolveSessionReady?.();
         }
     }
 
@@ -110,8 +115,8 @@ class AnalyticsClient {
             timestamp: Date.now()
         });
 
-        // If batch processing isn't running and we have a session, send immediately or start batch
-        if (!this.batchTimer && this.sessionId) {
+        // If session is ready, ensure batch processing is running
+        if (this.sessionId && !this.batchTimer) {
             this.startBatchProcessing();
         }
     }

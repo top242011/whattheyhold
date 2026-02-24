@@ -18,12 +18,12 @@ export function FundLogo({ ticker, name = '', className = "w-12 h-12" }: FundLog
     const getLogoUrl = (issuer: string) => `${SUPABASE_URL}/storage/v1/object/public/logos/${issuer}.png`;
 
     const renderLogo = (issuer: string, fallbackBorderBg: string) => (
-        <div className={`${baseCircleClasses} bg-slate-100 dark:bg-slate-800 border ${fallbackBorderBg}`}>
+        <div className={`${baseCircleClasses} bg-white dark:bg-slate-800 border ${fallbackBorderBg}`}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
                 src={getLogoUrl(issuer)}
                 alt={`${issuer} logo`}
-                className="w-[80%] h-[80%] object-contain"
+                className="w-full h-full object-cover rounded-full"
                 onError={(e) => {
                     // Fallback visually if image fails
                     e.currentTarget.style.display = 'none';

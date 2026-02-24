@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import "./globals.css";
+import "../globals.css";
 import { Toaster } from "sonner";
 import { LocaleProvider } from "@/lib/i18n";
 import { Footer } from "@/components/layout/Footer";
@@ -59,13 +59,15 @@ export default function RootLayout({
       >
         <LocaleProvider>
           <AnalyticsProvider>
-            <div className="flex flex-col min-h-screen">
+            <div className="site-layout-wrapper flex flex-col min-h-screen">
               <div className="flex-1">
                 {children}
               </div>
-              <Footer />
+              <div className="site-footer"><Footer /></div>
             </div>
-            <CookieConsent />
+            <div data-cookie-consent>
+              <CookieConsent />
+            </div>
           </AnalyticsProvider>
         </LocaleProvider>
         <Toaster position="top-center" richColors />

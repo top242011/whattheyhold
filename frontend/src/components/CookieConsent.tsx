@@ -45,8 +45,8 @@ export function CookieConsent() {
                     </p>
                     <p>
                         {locale === 'th'
-                            ? "เราขอความยินยอมในการเก็บข้อมูลการใช้งานแบบไม่ระบุตัวตน (Anonymous) เพื่อนำไปพัฒนาประสบการณ์ใช้งานและสร้างบทวิเคราะห์เทรนด์ตลาด ข้อมูลของคุณจะไม่ถูกเชื่อมโยงกับตัวตนจริง"
-                            : "We ask for your consent to collect anonymous usage data to improve your experience and develop market insights. Your data is never linked to your identity. "}
+                            ? "เราขอความยินยอมในการเก็บข้อมูลการใช้งานแบบไม่ระบุตัวตน (Anonymous) เพื่อนำไปพัฒนาประสบการณ์ใช้งานและสร้างบทวิเคราะห์เทรนด์ตลาด"
+                            : "We ask for your consent to collect anonymous usage data to improve your experience and develop market insights."}
                         <Link href="/privacy-policy" className="text-primary hover:underline underline-offset-2">
                             {locale === 'th' ? "อ่านนโยบายความเป็นส่วนตัว" : "Read Privacy Policy"}
                         </Link>
@@ -67,7 +67,7 @@ export function CookieConsent() {
                         {locale === 'th' ? "ยินยอม" : "Accept"}
                     </button>
                     <button
-                        onClick={() => setIsVisible(false)}
+                        onClick={handleAccept}
                         className="hidden md:flex p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
                         aria-label="Close"
                     >

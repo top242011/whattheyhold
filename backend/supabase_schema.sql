@@ -62,6 +62,48 @@ alter table sector_weights enable row level security;
 create policy "Allow public read sector_weights" on sector_weights for select using (true);
 create policy "Allow anon insert sector_weights" on sector_weights for insert with check (true);
 
+-- Analytics Sessions Table
+create table if not exists analytics_sessions (
+    id uuid primary key default uuid_generate_v4(),
+    anonymous_id uuid not null,
+    locale text default 'unknown',
+    device_type text default 'unknown',
+    referrer text,
+    created_at timestamptz default now()
+);
+
+-- Analytics Events Table
+create table if not exists analytics_events (
+    id uuid primary key default uuid_generate_v4(),
+    session_id uuid references analytics_sessions(id) on delete cascade,
+    event_type text not null,
+    event_data jsonb default '{}',
+    created_at timestamptz default now()
+);
+create index if not exists idx_analytics_events_session on analytics_events(session_id);
+create index if not exists idx_analytics_events_type on analytics_events(event_type);
+
+alter table analytics_sessions enable row level security;
+create policy "Allow anon read analytics_sessions" on analytics_sessions for select to anon using (true);
+create policy "Allow anon insert analytics_sessions" on analytics_sessions for insert to anon with check (true);
+
+alter table analytics_events enable row level security;
+create policy "Allow anon read analytics_events" on analytics_events for select to anon using (true);
+create policy "Allow anon insert analytics_events" on analytics_events for insert to anon with check (true);
+
+-- Waitlist Emails Table
+create table if not exists waitlist_emails (
+    id uuid primary key default uuid_generate_v4(),
+    email text unique not null,
+    source text default 'navbar',
+    created_at timestamptz default now()
+);
+create index if not exists idx_waitlist_emails_email on waitlist_emails(email);
+
+alter table waitlist_emails enable row level security;
+create policy "Allow anon insert waitlist_emails" on waitlist_emails for insert to anon with check (true);
+create policy "Allow anon read waitlist_emails" on waitlist_emails for select to anon using (true);
+
 -- NOTE: For production, INSERT/UPDATE should be restricted to service_role only.
 -- Since we are running the scrivener from the backend with the ANON key for this MVP (unless user provides service key),
 -- we are enabling anon write access for demonstration. Ideally we use Service Role Key for writes.

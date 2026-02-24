@@ -33,6 +33,12 @@ class DBService:
             fund_data = response.data[0]
             fund_id = fund_data['id']
             
+            # Increment view count asynchronously (fire and forget basically, but doing it sync here for simplicity)
+            try:
+                self.supabase.rpc('increment_fund_view', {'p_ticker': ticker}).execute()
+            except Exception as e:
+                print(f"Failed to increment view count for {ticker}: {e}")
+            
             # 2. Get Related Data
             holdings_res = self.supabase.table("holdings").select("*").eq("fund_id", fund_id).execute()
             country_res = self.supabase.table("country_weights").select("*").eq("fund_id", fund_id).execute()
@@ -191,10 +197,10 @@ class DBService:
             return []
             
         try:
-            # For this MVP, let's just fetch the 5 most recently updated funds in the DB
-            # We can expand this later to use view counts or user watchlist counts
+            # Fetch the top funds based on view_count
             response = self.supabase.table("funds") \
-                .select("ticker, name, price, change_pct") \
+                .select("ticker, name, price, view_count") \
+                .order("view_count", desc=True) \
                 .order("updated_at", desc=True) \
                 .limit(limit) \
                 .execute()

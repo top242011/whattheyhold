@@ -5,7 +5,13 @@ import { useLocale } from "@/lib/i18n";
 
 import { SearchBar } from "../SearchBar";
 
-export function HeroSection() {
+interface HeroSectionProps {
+    heroTickers?: string[]
+}
+
+const DEFAULT_TICKERS = ['VOO', 'QQQ', 'VTI', 'SCHD']
+
+export function HeroSection({ heroTickers = DEFAULT_TICKERS }: HeroSectionProps) {
     const { t } = useLocale();
 
     return (
@@ -40,18 +46,15 @@ export function HeroSection() {
                     {/* Popular tags */}
                     <div className="flex flex-wrap justify-center gap-2 mt-4 text-sm text-slate-500 dark:text-slate-400">
                         <span>{t.hero.popular}</span>
-                        <Link href="/fund/VOO" className="hover:text-primary transition-colors underline decoration-dotted">
-                            VOO
-                        </Link>
-                        <Link href="/fund/QQQ" className="hover:text-primary transition-colors underline decoration-dotted">
-                            QQQ
-                        </Link>
-                        <Link href="/fund/VTI" className="hover:text-primary transition-colors underline decoration-dotted">
-                            VTI
-                        </Link>
-                        <Link href="/fund/SCHD" className="hover:text-primary transition-colors underline decoration-dotted">
-                            SCHD
-                        </Link>
+                        {heroTickers.map((ticker) => (
+                            <Link
+                                key={ticker}
+                                href={`/fund/${ticker}`}
+                                className="hover:text-primary transition-colors underline decoration-dotted"
+                            >
+                                {ticker}
+                            </Link>
+                        ))}
                     </div>
                 </div>
             </div>

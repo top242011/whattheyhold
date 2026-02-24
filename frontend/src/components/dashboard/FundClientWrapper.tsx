@@ -20,7 +20,7 @@ interface FundClientWrapperProps {
 export function FundClientWrapper({ ticker, data, initialIsWatchlisted, feederName }: FundClientWrapperProps) {
     const { t } = useLocale();
     const [imagesLoaded, setImagesLoaded] = useState(false);
-    const [mapView, setMapView] = useState<"weight" | "sector">("weight");
+    const [mapView, setMapView] = useState<"weight" | "sector" | "calculator">("weight");
 
     useEffect(() => {
         let mounted = true;
@@ -116,7 +116,7 @@ export function FundClientWrapper({ ticker, data, initialIsWatchlisted, feederNa
                     <div className="hidden lg:block">
                         <FundInfoOverlay fund={data.fund} lastUpdated={data.last_updated} initialIsWatchlisted={initialIsWatchlisted} />
                     </div>
-                    <WorldMap weights={data.country_weights} sectors={data.sector_weights} view={mapView} onViewChange={setMapView} />
+                    <WorldMap weights={data.country_weights} sectors={data.sector_weights} holdings={data.holdings} view={mapView} onViewChange={setMapView} />
                 </div>
 
                 {/* Mobile: View Toggle below the map */}
