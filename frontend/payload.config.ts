@@ -66,9 +66,8 @@ export default buildConfig({
     // Keep all Payload tables in a dedicated PostgreSQL schema to avoid
     // conflicts with the existing app tables (funds, holdings, etc.)
     schemaName: 'payload',
-    // push: true auto-syncs schema on startup (dev-friendly, no CLI needed).
-    // Set to false and use `npx payload migrate` for production deployments.
-    push: process.env.NODE_ENV !== 'production',
+    // push: true auto-syncs schema on startup — required until migrations are set up.
+    push: true,
   }),
   sharp,
 })

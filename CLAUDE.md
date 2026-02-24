@@ -4,94 +4,36 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-WhatTheyHold is a financial visualization web app that helps retail investors explore ETF/Mutual Fund holdings through interactive world maps, sector breakdowns, and portfolio calculators. It supports two fund data sources: **international funds via yfinance** and **Thai funds via SEC Open Data**.
+WhatTheyHold is a financial visualization web app that helps retail investors explore ETF/Mutual Fund holdings through interactive world maps, sector breakdowns, and portfolio calculators. It supports two fund data sources: **international funds via yfinance** and **Thai funds via SEC Open Data**. It includes a **Payload CMS v3** admin panel for content management and an analytics dashboard.
 
 ## Tech Stack
 
 ### Frontend (`/frontend`)
 - **Next.js 16** + **React 19** + **TypeScript 5**
-- **Tailwind CSS 4** (utility-first, custom design tokens in `globals.css`)
-- **react-simple-maps** + **d3-scale** (interactive world map visualization)
-- **framer-motion** (animations)
-- **lucide-react** (icons)
-- **sonner** (toast notifications)
+- **Payload CMS v3** (integrated into Next.js as route group, PostgreSQL via Supabase)
+- **Tailwind CSS 4** (custom design tokens in `globals.css`)
+- **react-simple-maps** + **d3-scale** (world map), **recharts** (analytics dashboard)
+- **framer-motion** (animations), **lucide-react** (icons), **sonner** (toasts)
 - **clsx** + **tailwind-merge** for conditional class composition
 - Path alias: `@/*` maps to `./src/*`
 
 ### Backend (`/backend`)
 - **Flask 3.0** (Python) with CORS enabled
-- **yfinance** (international fund data source)
-- **SEC Open Data API** (Thai fund data)
-- **Supabase** (PostgreSQL database via `supabase-py`)
+- **yfinance** (international fund data), **SEC Open Data API** (Thai fund data)
+- **Supabase** (PostgreSQL via `supabase-py`)
 - Virtual env at `backend/venv/`
 
 ### Database (Supabase PostgreSQL)
-- Tables: `funds`, `holdings`, `country_weights`, `sector_weights` (yfinance funds)
-- Tables: `thai_funds`, `thai_feeder_mappings` (SEC Thai funds)
-- Schema: `backend/supabase_schema.sql`
+- App tables (public schema): `funds`, `holdings`, `country_weights`, `sector_weights`, `thai_funds`, `thai_feeder_mappings`, `analytics_sessions`, `analytics_events`
+- Payload CMS tables: dedicated `payload` schema (auto-synced via `push: true` in dev)
+- Schema definition: `backend/supabase_schema.sql`
 - RLS policies for public read access; 24-hour cache TTL for yfinance data
-
-## Project Structure
-
-```
-whattheyhold/
-├── frontend/src/
-│   ├── app/
-│   │   ├── layout.tsx              # Root layout (i18n + theme setup)
-│   │   ├── page.tsx                # Homepage
-│   │   ├── globals.css             # Design tokens & Tailwind
-│   │   ├── search/page.tsx         # Search page (async SC, passes initialQuery)
-│   │   └── fund/[ticker]/
-│   │       ├── page.tsx            # Fund dashboard (async Server Component)
-│   │       ├── loading.tsx
-│   │       └── error.tsx
-│   ├── components/
-│   │   ├── layout/                 → Header, Footer, MobileMenu
-│   │   ├── home/                   → HeroSection, FeaturesGrid, TrendingFunds, ToolsSection
-│   │   ├── dashboard/
-│   │   │   ├── FundClientWrapper.tsx      # Client wrapper for yfinance funds
-│   │   │   ├── ThaiFundClientWrapper.tsx  # Client wrapper for Thai (SEC) funds
-│   │   │   ├── WorldMap.tsx               # Map with 3 views: weight/sector/calculator
-│   │   │   ├── SectorTreeMap.tsx
-│   │   │   ├── PortfolioCalculator.tsx    # Allocates user amount across top 10 holdings
-│   │   │   ├── HoldingsCard.tsx
-│   │   │   ├── FundInfoOverlay.tsx
-│   │   │   ├── DashboardNav.tsx
-│   │   │   └── CompanyLogo.tsx
-│   │   ├── SearchPageClient.tsx    # Search UI (debounce, filters, URL sync)
-│   │   ├── SearchBar.tsx           # Header search (typeahead)
-│   │   ├── CookieConsent.tsx
-│   │   ├── AnalyticsProvider.tsx
-│   │   └── ui/FundLogo.tsx
-│   ├── lib/
-│   │   ├── api.ts                  # API client (discriminated union types)
-│   │   ├── analytics.ts            # Anonymous analytics client
-│   │   ├── sanitize.ts             # Input sanitization utilities
-│   │   ├── thai-mapper.ts          # Thai fund name/type mapping helpers
-│   │   └── i18n/
-│   │       ├── context.tsx         # LocaleProvider + useLocale hook
-│   │       ├── index.ts
-│   │       └── translations/en.ts, th.ts
-│   └── types/fund.ts               # TypeScript interfaces
-├── backend/
-│   ├── main.py                     # Flask app & all routes
-│   ├── models/schemas.py           # Dataclasses
-│   ├── services/
-│   │   ├── yfinance_service.py     # Data fetching + 3-tier cache
-│   │   ├── country_mapper.py       # Ticker → country code (dict lookup)
-│   │   ├── db_service.py           # Supabase CRUD for yfinance funds (singleton)
-│   │   ├── sec_service.py          # SEC Open Data API client
-│   │   ├── sec_db_service.py       # Supabase CRUD for Thai funds (singleton)
-│   │   └── analytics_service.py   # Anonymous session + event tracking
-│   └── .env                        # Supabase credentials (DO NOT COMMIT)
-└── mockup/                         # HTML design references
-```
 
 ## Development
 
 ### Frontend
 ```bash
-cd frontend && npm run dev     # http://localhost:3000
+cd frontend && npm run dev     # http://localhost:3000 (includes Payload admin at /admin)
 cd frontend && npm run build   # Production build
 cd frontend && npm run lint    # ESLint
 ```
@@ -101,70 +43,98 @@ cd frontend && npm run lint    # ESLint
 cd backend && source venv/bin/activate && python main.py   # http://127.0.0.1:8000
 ```
 
+### Environment Variables
+Frontend (`frontend/.env`):
+- `DATABASE_URL` — Supabase direct Postgres connection (for Payload CMS)
+- `PAYLOAD_SECRET` — 32+ char random string
+- `SUPABASE_SERVICE_ROLE_KEY` — server-only key for analytics data aggregation
+- `NEXT_PUBLIC_API_URL` — defaults to `http://localhost:3000`
+- `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+
+Backend (`backend/.env`):
+- `SUPABASE_URL`, `SUPABASE_KEY` — Supabase project credentials
+
 ### API Proxy
 - `next.config.ts` rewrites `/api/*` → Flask at `http://127.0.0.1:8000`
-- Frontend uses `NEXT_PUBLIC_API_URL` env var (defaults to `http://localhost:3000`)
+- Payload CMS REST API uses `/cms-api/*` to avoid conflict with the Flask proxy
 
 ## Key Architectural Patterns
 
+### Route Group Architecture
+The Next.js app uses two route groups with separate layouts:
+
+- **`(site)/`** — Public-facing app (Header, Footer, AnalyticsProvider, CookieConsent)
+  - `/` homepage, `/fund/[ticker]`, `/search`, `/screen`, `/compare`, `/portfolio`, `/login`, `/privacy-policy`, `/terms-of-service`
+  - `/api/analytics-data` — Next.js API route for admin analytics aggregation
+- **`(payload)/`** — Payload CMS admin panel (isolated layout, no site chrome)
+  - `/admin` — CMS dashboard, collections, analytics view
+  - `/cms-api/[...slug]` — Payload REST API
+
+Layout isolation uses CSS `:has()` selectors: `body:has([data-payload-admin])` hides `.site-footer` and `[data-cookie-consent]`.
+
+### Payload CMS Collections
+- **AdminUsers** — Auth-enabled, 3 roles: Super Admin, Editor, Viewer
+- **LegalPages** — Privacy Policy & Terms, bilingual (EN/TH), Lexical rich text
+- **Complaints** — User feedback with status workflow: New → In Review → Resolved → Closed
+- **FundOverrides** — Runtime per-fund overrides (hide, rename, notes)
+- **SiteSettings** (global) — `heroTickers` array, `announcement` banner, `maintenanceMode` toggle
+
+Custom admin views: Dashboard with navigation cards, Analytics dashboard with Recharts charts.
+
+### Payload CMS Gotchas
+- `withPayload` import: `@payloadcms/next/withPayload` (NOT `@payloadcms/next`)
+- Turbopack alias must use relative path: `'@payload-config': './payload.config.ts'`
+- Webpack alias must use absolute path: `path.resolve(process.cwd(), 'payload.config.ts')`
+- Admin `[[...segments]]/page.tsx` must pass `params`/`searchParams` as Promises (not awaited) to `RootPage`
+- `importMap.js` in admin dir is auto-generated by Payload
+
 ### Dual Fund Source Architecture
-The app has two distinct fund pipelines:
+Two distinct fund pipelines:
 
 **International funds (yfinance)**
-- Route: `/fund/[ticker]` (no extra params)
-- Backend: `GET /api/fund/<ticker>` → `yfinance_service` → Supabase cache
-- Frontend: `fund/[ticker]/page.tsx` fetches via `getFundData(ticker)`, renders `FundClientWrapper`
-- Full data: holdings, country weights, sector weights, price
+- Route: `/fund/[ticker]` → `GET /api/fund/<ticker>` → `yfinance_service` → Supabase cache
+- Renders `FundClientWrapper` with full holdings, country weights, sector weights
 
 **Thai funds (SEC Open Data)**
-- Route: `/fund/[proj_id]?source=sec` (optional `&feeder=<name>` for feeder fund context)
-- Non-feeder funds: `GET /api/thai-fund-info/<ticker>` → top 5 holdings from SEC API, renders `ThaiFundClientWrapper`
-- Feeder funds: `GET /api/thai-fund/<proj_id>/holdings` → looks up master fund ticker → fetches master via yfinance → returns full holdings data, renders `FundClientWrapper` with a feeder banner
-- Thai feeder funds wrap an international master fund; their holdings are that master fund's holdings
+- Route: `/fund/[proj_id]?source=sec` (optional `&feeder=<name>`)
+- Non-feeder: `GET /api/thai-fund-info/<ticker>` → top 5 holdings → `ThaiFundClientWrapper`
+- Feeder: `GET /api/thai-fund/<proj_id>/holdings` → master fund via yfinance → `FundClientWrapper` with feeder banner
 
 ### Frontend Data Flow
-- `fund/[ticker]/page.tsx` is an **async Server Component** — calls API directly and passes data as props to client wrappers. Never refetch the same data client-side.
-- `search/page.tsx` reads `?q=` from `searchParams` and passes `initialQuery` to `SearchPageClient` (client component that debounces, syncs URL, and filters).
-- Client Components (`"use client"`) handle interactivity, local state, animations, and localStorage access.
-
-### WorldMap Views
-`WorldMap` supports three tab views controlled by `mapView` state in `FundClientWrapper`:
-- `"weight"` — choropleth country weight map
-- `"sector"` — `SectorTreeMap` treemap
-- `"calculator"` — `PortfolioCalculator` (user inputs amount, sees allocation per top 10 holding)
+- `fund/[ticker]/page.tsx` is an **async Server Component** — fetches data server-side, passes as props to client wrappers
+- `search/page.tsx` reads `?q=` from `searchParams`, passes `initialQuery` to `SearchPageClient`
+- Client Components (`"use client"`) handle interactivity, local state, animations, localStorage
 
 ### API Client (`lib/api.ts`)
-Uses **discriminated union types** for type-safe, exhaustive error handling — no thrown exceptions:
+Uses **discriminated union types** — no thrown exceptions:
 ```typescript
 type FundResult =
   | { status: 'ok'; data: FundResponse }
   | { status: 'not_found' }
   | { status: 'error'; message: string }
 ```
-Always match all three cases when consuming `FundResult`.
+Always match all three cases when consuming results.
 
 ### Backend Caching (3-tier fallback for yfinance)
 1. **Supabase DB** — persisted cache with 24-hour TTL (`is_cache_fresh()`)
 2. **In-memory Python dict** — same-session deduplication
 3. **Mock data** — fallback when both APIs fail
 
-### Analytics
-- `AnalyticsProvider` (client component in root layout) creates an anonymous session on mount using `localStorage` for the anonymous ID
-- `analytics.trackEvent(type, data)` in `lib/analytics.ts` POSTs to `/api/analytics/event`
-- Backend: `analytics_service.py` stores sessions and events in Supabase
+### Analytics Pipeline
+- **Client**: `AnalyticsProvider` creates anonymous session on mount; `analytics.trackEvent()` batches events (flush every 5s or on page hide)
+- **Consent**: `CookieConsent` component gates all tracking; stored in `localStorage`
+- **Backend**: `POST /api/analytics/session` and `/api/analytics/event` → Supabase
+- **Dashboard**: `/admin/analytics` → fetches `/api/analytics-data` (JS-side aggregation, no Supabase RPC) → Recharts visualization
+- **Event types**: `page_view`, `session_start`, `search_query`, `fund_view`, `map_click`, `sector_click`, `compare_funds`
 
 ### i18n System
-- **Provider**: `LocaleProvider` wraps the root layout
+- **Provider**: `LocaleProvider` in `(site)/layout.tsx`
 - **Hook**: `useLocale()` → `{ locale, setLocale, t: Translations }`
 - **Languages**: English (`en`) and Thai (`th`)
-- **Persistence**: localStorage + browser language detection
-- Use `t.someKey` for all user-facing strings; use `toLocaleString()` with `locale` for number/date formatting
+- Use `t.someKey` for user-facing strings; `toLocaleString()` with `locale` for numbers/dates
 
 ### State Management
-No Redux/Zustand. The app uses:
-- **React Context** for theme and locale
-- **`useState`** for component-local UI state (tooltips, search, view mode)
-- **localStorage** for theme and locale persistence (read via inline script in layout to prevent flash)
+No Redux/Zustand. React Context for theme/locale, `useState` for component-local state, `localStorage` for persistence (read via inline script in layout to prevent flash).
 
 ## Backend API Routes
 
@@ -184,27 +154,23 @@ No Redux/Zustand. The app uses:
 
 ## Design System
 
-- **Primary**: `#47b4eb` (light blue)
-- **Secondary**: Mint `#b2f2bb`, Lavender `#e0c3fc`
+- **Primary**: `#47b4eb` (light blue), **Secondary**: Mint `#b2f2bb`, Lavender `#e0c3fc`
 - **Dark mode**: `.dark` class on `<html>`, toggled via localStorage
-- **Glass morphism**: `.glass-panel` utility — `backdrop-blur-2xl`, `border-white/50`, `bg-white/75`; dark: `dark:border-white/10`, `dark:bg-slate-900/50`
-- **Animations**: Framer Motion — staggered entrance (`initial={{ opacity: 0, x: -20 }}`), animated progress bars
-- Design tokens defined as CSS variables in `globals.css` under `@theme inline { ... }`
+- **Glass morphism**: `.glass-panel` — `backdrop-blur-2xl`, `bg-white/75`; dark: `dark:bg-slate-900/50`
+- **Animations**: Framer Motion staggered entrances, animated progress bars
+- Design tokens as CSS variables in `globals.css` under `@theme inline { ... }`
 
 ## Coding Conventions
 
 ### Frontend
-- Functional React components with TypeScript; props interfaces defined inline above component
+- Functional React components; props interfaces defined inline above component
 - Server Components by default; `"use client"` only when needed
-- Tailwind utility classes for styling (no CSS modules)
-- Component files: PascalCase, organized by feature: `layout/`, `home/`, `dashboard/`
+- Tailwind utility classes (no CSS modules); PascalCase files organized by feature
 
 ### Backend
-- Python dataclasses for data models; serialize with `asdict()`
-- Service layer pattern: business logic in `services/`, routes in `main.py`
-- `db_service` and `sec_db_service` instantiated as module-level singletons
-- Snake_case for Python, camelCase for JSON API responses
-- Type hints throughout
+- Python dataclasses (`asdict()` for serialization); service layer in `services/`, routes in `main.py`
+- `db_service` and `sec_db_service` as module-level singletons
+- Snake_case for Python, camelCase for JSON API responses; type hints throughout
 
 ### API Response Format (yfinance funds)
 ```json
